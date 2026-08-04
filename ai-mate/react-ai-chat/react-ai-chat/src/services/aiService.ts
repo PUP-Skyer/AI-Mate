@@ -66,17 +66,39 @@ async function request<T = unknown>(
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    // 安全读取响应文本，避免空响应体导致 JSON 解析崩溃
+    const text = await response.text();
+    let data: Record<string, unknown> | null = null;
+    if (text) {
+      try {
+        data = JSON.parse(text) as Record<string, unknown>;
+      } catch {
+        // 响应非 JSON（如 HTML 错误页、纯文本）
+        if (!response.ok) {
+          return {
+            error: text.slice(0, 500) || `请求失败 (${response.status})`,
+            code: String(response.status),
+          };
+        }
+        // 200 但非 JSON，视为空数据
+        return { data: null as T };
+      }
+    }
 
     if (!response.ok) {
       return {
-        error: data.error || `请求失败 (${response.status})`,
-        code: data.code,
+        error: (data?.error as string) || `请求失败 (${response.status})`,
+        code: (data?.code as string) || String(response.status),
       };
     }
 
+    // 响应体为空（如 204 No Content）
+    if (!data) {
+      return { data: null as T };
+    }
+
     // 统一解包后端包装层：后端返回 { code, data, message }，此处取出 data 供调用方直接使用
-    return { data: (data?.data ?? data) as T };
+    return { data: ((data as Record<string, unknown>)?.data ?? data) as T };
   } catch (error) {
     console.error('[AI Service Error]', error);
     return {
