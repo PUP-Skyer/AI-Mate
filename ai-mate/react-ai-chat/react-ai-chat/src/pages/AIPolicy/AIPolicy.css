@@ -1,0 +1,128 @@
+/**
+ * AI 创业政策页面样式
+ * 设计方向：Data-Dense Dashboard（与行业报告页一致）
+ * 主色 #1E40AF / 强调 #F59E0B
+ */
+
+/* ===== 设计令牌 ===== */
+.ai-policy-page {
+  --ap-blue: #1e40af;
+  --ap-blue-soft: #eff4ff;
+  --ap-amber: #f59e0b;
+  --ap-amber-soft: #fff7e6;
+  --ap-ink: #1f2937;
+  --ap-muted: #6b7280;
+  --ap-border: #e5e7eb;
+  --ap-bg: #f8fafc;
+
+  min-height: 100%;
+  background: var(--ap-bg);
+  color: var(--ap-ink);
+  padding: 24px 28px 40px;
+}
+
+/* 衬线标题 */
+.ap-serif-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif;
+  font-weight: 700;
+  color: var(--ap-ink);
+  letter-spacing: 0.02em;
+}
+.ap-serif-title.ap-main { font-size: 24px; margin-bottom: 4px; }
+.ap-serif-title.ap-detail { font-size: 26px; line-height: 1.5; margin: 8px 0 4px; }
+.ap-head-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
+.ap-rule {
+  height: 3px; width: 44px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--ap-amber), rgba(245, 158, 11, 0.2));
+  margin: 8px 0 16px;
+}
+
+/* ===== KPI 条 ===== */
+.ap-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.ap-kpi-item { background: #fff; border: 1px solid var(--ap-border); border-radius: 10px; padding: 12px 16px; }
+.ap-kpi-label { font-size: 12px; color: var(--ap-muted); margin-bottom: 6px; }
+.ap-kpi-value { font-size: 24px; font-weight: 800; color: var(--ap-blue); font-variant-numeric: tabular-nums; }
+.ap-kpi-value.ap-amber { color: var(--ap-amber); }
+.ap-kpi-delta { font-size: 12px; color: #16a34a; margin-left: 8px; }
+
+/* ===== 筛选栏 ===== */
+.ap-filter-bar {
+  background: #fff; border: 1px solid var(--ap-border); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 12px;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+
+/* ===== 表格密度覆盖 ===== */
+.ap-table-card { background: #fff; border: 1px solid var(--ap-border); border-radius: 10px; overflow: hidden; }
+.ap-table-card .ant-table { font-size: 13px; }
+.ap-table-card .ant-table-thead > tr > th {
+  background: #f1f5fb; color: #334155; font-weight: 600; font-size: 12px;
+  padding: 10px 12px; border-bottom: 1px solid var(--ap-border);
+}
+.ap-table-card .ant-table-tbody > tr > td { padding: 9px 12px; border-bottom: 1px solid #f3f4f6; }
+.ap-table-card .ant-table-tbody > tr:hover > td { background: var(--ap-blue-soft) !important; }
+.ap-table-card .ant-table-row.ap-row-hover > td { background: #e8eefc !important; }
+
+/* ===== 链接区块 ===== */
+.ap-link-card {
+  background: #fff; border: 1px solid var(--ap-border); border-radius: 10px;
+  padding: 18px 20px; margin-top: 14px; scroll-margin-top: 12px;
+}
+.ap-section-heading {
+  font-size: 16px; font-weight: 700; color: var(--ap-ink);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+}
+.ap-seq {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--ap-amber-soft); color: #b45309; font-size: 12px;
+}
+.ap-link-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.ap-link-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; border: 1px solid var(--ap-border); border-radius: 8px;
+  transition: border-color 0.2s, background 0.2s; text-decoration: none;
+}
+.ap-link-item:hover { border-color: var(--ap-blue); background: var(--ap-blue-soft); }
+
+/* ===== 详情页 ===== */
+.ap-detail-head {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f8ff 100%);
+  border: 1px solid var(--ap-border); border-radius: 12px;
+  padding: 20px 24px; margin-bottom: 16px;
+}
+.ap-detail-section {
+  background: #fff; border: 1px solid var(--ap-border); border-radius: 10px;
+  padding: 18px 20px; margin-bottom: 14px;
+}
+.ap-detail-body { font-size: 14px; line-height: 1.9; color: #374151; text-align: justify; }
+.ap-detail-points { margin: 0; padding-left: 0; list-style: none; }
+.ap-detail-points li {
+  position: relative; padding-left: 18px; margin-bottom: 10px;
+  line-height: 1.8; font-size: 14px; color: #374151;
+}
+.ap-detail-points li::before {
+  content: ''; position: absolute; left: 2px; top: 10px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--ap-amber);
+}
+.ap-related-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; border: 1px solid var(--ap-border); border-radius: 8px;
+  cursor: pointer; margin-bottom: 8px; background: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ap-related-item:hover { border-color: var(--ap-blue); background: var(--ap-blue-soft); }
+
+/* ===== 入场动画 ===== */
+.ap-enter { animation: apFadeUp 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes apFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .ai-policy-page { padding: 16px; }
+  .ap-kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .ap-link-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,5 @@
+# Created at 2026-07-13T20:37:32.461
+Boot Manifest-JAR contains absolute paths in classpath 'F:\program open\AI Entrepreneurship Empowerment Platform\program1\ai-mate\backend\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

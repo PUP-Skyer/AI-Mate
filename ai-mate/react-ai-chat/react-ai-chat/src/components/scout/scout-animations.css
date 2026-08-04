@@ -1,0 +1,147 @@
+/* ─── 探路者AI 共享动画库 ─────────────────────────────── */
+
+/* 入场动画 */
+@keyframes scoutFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scoutFadeInScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scoutSlideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scoutSlideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* SVG 线条绘制 */
+@keyframes scoutDrawLine {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* 辉光脉冲 */
+@keyframes scoutPulseGlow {
+  0%, 100% { box-shadow: 0 0 8px var(--glow-color, rgba(217,119,87,0.3)); }
+  50%      { box-shadow: 0 0 20px var(--glow-color, rgba(217,119,87,0.5)); }
+}
+
+/* 数字递增入场 */
+@keyframes scoutNumberCount {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 圆弧展开 */
+@keyframes scoutArcReveal {
+  from { stroke-dashoffset: var(--arc-length, 314); }
+  to   { stroke-dashoffset: var(--arc-offset, 0); }
+}
+
+/* 交错延迟工具类 */
+.scout-stagger-1 { animation-delay: 0.08s; }
+.scout-stagger-2 { animation-delay: 0.16s; }
+.scout-stagger-3 { animation-delay: 0.24s; }
+.scout-stagger-4 { animation-delay: 0.32s; }
+.scout-stagger-5 { animation-delay: 0.40s; }
+.scout-stagger-6 { animation-delay: 0.48s; }
+.scout-stagger-7 { animation-delay: 0.56s; }
+.scout-stagger-8 { animation-delay: 0.64s; }
+
+/* 通用动画类 */
+.scout-fade-in-up {
+  animation: scoutFadeInUp 0.45s ease-out both;
+}
+
+.scout-fade-in-scale {
+  animation: scoutFadeInScale 0.4s ease-out both;
+}
+
+.scout-slide-in-left {
+  animation: scoutSlideInLeft 0.4s ease-out both;
+}
+
+.scout-slide-in-right {
+  animation: scoutSlideInRight 0.4s ease-out both;
+}
+
+/* ─── 扫描线效果 ─────────────────────────────────────────── */
+@keyframes scoutScanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scout-scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(180deg, transparent, var(--glow-color, rgba(120,140,93,0.15)), transparent);
+  animation: scoutScanline 4s linear infinite;
+  pointer-events: none;
+}
+
+/* ─── 打字机光标 ─────────────────────────────────────────── */
+@keyframes scoutBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.scout-cursor::after {
+  content: '▌';
+  animation: scoutBlink 1s step-end infinite;
+  color: var(--glow-color, #788c5d);
+  margin-left: 2px;
+}
+
+/* ─── 脉冲点 ─────────────────────────────────────────────── */
+@keyframes scoutPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.5); opacity: 0.5; }
+}
+
+.scout-pulse {
+  animation: scoutPulse 2s ease-in-out infinite;
+}
+
+/* ─── 雷达扫描 ───────────────────────────────────────────── */
+@keyframes scoutRadarSweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── 渐入渐出浮动 ───────────────────────────────────────── */
+@keyframes scoutFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.scout-float {
+  animation: scoutFloat 3s ease-in-out infinite;
+}
+
+/* ─── 骨架屏闪烁 ─────────────────────────────────────────── */
+@keyframes scoutShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.scout-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-color, #161b22) 25%,
+    var(--surface-hover, #1c2128) 50%,
+    var(--surface-color, #161b22) 75%
+  );
+  background-size: 200% 100%;
+  animation: scoutShimmer 1.5s ease-in-out infinite;
+}

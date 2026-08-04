@@ -1,0 +1,41 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import App from './App.vue'
+import { routes } from './router'
+import { createRouter, createWebHistory } from 'vue-router'
+
+let app: any = null
+let router: any = null
+
+function render(props: Record<string, any> = {}) {
+  const { container } = props
+  router = createRouter({
+    history: createWebHistory('/dashboard'),
+    routes,
+  })
+
+  app = createApp(App)
+  app.use(createPinia())
+  app.use(router)
+  app.mount(container ? container.querySelector('#app') : '#app')
+}
+
+if (!(window as any).__POWERED_BY_QIANKUN__) {
+  render()
+}
+
+export async function bootstrap() {
+  console.log('[vue-dashboard] bootstrap')
+}
+
+export async function mount(props: Record<string, any>) {
+  console.log('[vue-dashboard] mount', props)
+  render(props)
+}
+
+export async function unmount() {
+  console.log('[vue-dashboard] unmount')
+  app?.unmount()
+  app = null
+  router = null
+}

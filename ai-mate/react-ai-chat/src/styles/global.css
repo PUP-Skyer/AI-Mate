@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: 'Fira Code', ui-monospace, monospace;
+  --font-body: 'Fira Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #7C3AED;
+  --color-primary-light: #A78BFA;
+  --color-primary-dark: #5B21B6;
+  --color-accent: #06B6D4;
+  --color-cta: #F43F5E;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+
+  --color-scout: #3B82F6;
+  --color-scout-light: #60A5FA;
+  --color-scout-dark: #1D4ED8;
+  --color-sage: #F59E0B;
+  --color-sage-light: #FBBF24;
+  --color-sage-dark: #B45309;
+  --color-maker: #10B981;
+  --color-maker-light: #34D399;
+  --color-maker-dark: #047857;
+  --color-butler: #8B5CF6;
+  --color-butler-light: #A78BFA;
+  --color-butler-dark: #6D28D9;
+
+  --color-bg-page: #0F0F23;
+  --color-bg-card: oklch(0.2 0.02 270);
+  --color-bg-glass: oklch(1 0 0 / 0.05);
+  --color-bg-hover: oklch(1 0 0 / 0.08);
+  --color-bg-elevated: oklch(0.25 0.02 270 / 0.8);
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #94A3B8;
+
+  --color-border-light: oklch(1 0 0 / 0.08);
+  --color-border-glow: oklch(0.55 0.25 280 / 0.3);
+  --color-border-dashed: oklch(0.55 0.25 280 / 0.4);
+  --color-glow: oklch(0.55 0.25 280 / 0.4);
+
+  --color-bg-page-light: #F8FAFC;
+  --color-bg-card-light: #FFFFFF;
+  --color-bg-glass-light: oklch(1 0 0 / 0.8);
+  --color-bg-hover-light: #F1F5F9;
+  --color-bg-elevated-light: oklch(1 0 0 / 0.95);
+
+  --color-text-primary-light: #1E293B;
+  --color-text-secondary-light: #475569;
+  --color-text-muted-light: #94A3B8;
+
+  --color-border-light-light: #E2E8F0;
+  --color-border-glow-light: oklch(0.55 0.25 280 / 0.2);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --spacing-grid: 4px;
+
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--color-glow); }
+  50% { box-shadow: 0 0 40px var(--color-glow); }
+}
+
+@utility glass {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility glass-hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-glow);
+  box-shadow: 0 8px 32px var(--color-border-glow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+@utility neon-text {
+  color: var(--color-primary-light);
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.2);
+}
+
+@utility neon-glow {
+  box-shadow: 0 0 20px var(--color-glow), 0 0 40px var(--color-glow);
+}
+
+/* WebKit 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.55 0.25 280 / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.55 0.25 280 / 0.5);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.55 0.25 280 / 0.3) transparent;
+}

@@ -1,0 +1,16 @@
+/* 风险矩阵报告打印样式 */
+@media print {
+  body.sage-risk-printing > *:not(#sage-risk-print-root) {
+    display: none !important;
+  }
+  #sage-risk-print-root {
+    display: block !important;
+    color: #292524;
+    background: #fff;
+  }
+  .risk-no-print { display: none !important; }
+  .sage-fade-in-up { animation: none !important; }
+  .sage-pulse-dot { animation: none !important; }
+  #sage-risk-print-root h1 { color: #9F1239; font-size: 22pt; }
+  #sage-risk-print-root h2 { color: #9F1239; font-size: 14pt; }
+}

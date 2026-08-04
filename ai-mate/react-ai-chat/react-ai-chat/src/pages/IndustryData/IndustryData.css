@@ -1,0 +1,64 @@
+/**
+ * 行业数据查询页面样式
+ * 设计方向：Data-Dense Dashboard（与行业报告/政策页一致）
+ * 主色 #1E40AF / 强调 #F59E0B
+ */
+
+/* ===== 设计令牌 ===== */
+.industry-data-page {
+  --id-blue: #1e40af;
+  --id-blue-soft: #eff4ff;
+  --id-amber: #f59e0b;
+  --id-amber-soft: #fff7e6;
+  --id-ink: #1f2937;
+  --id-muted: #6b7280;
+  --id-border: #e5e7eb;
+  --id-bg: #f8fafc;
+
+  min-height: 100%;
+  background: var(--id-bg);
+  color: var(--id-ink);
+  padding: 24px 28px 40px;
+}
+
+/* 衬线标题 */
+.id-serif-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif;
+  font-weight: 700;
+  color: var(--id-ink);
+  letter-spacing: 0.02em;
+}
+.id-serif-title.id-main { font-size: 24px; margin-bottom: 4px; }
+.id-head-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
+.id-rule {
+  height: 3px; width: 44px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--id-amber), rgba(245, 158, 11, 0.2));
+  margin: 8px 0 16px;
+}
+
+/* ===== KPI 条 ===== */
+.id-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.id-kpi-item { background: #fff; border: 1px solid var(--id-border); border-radius: 10px; padding: 12px 16px; }
+.id-kpi-label { font-size: 12px; color: var(--id-muted); margin-bottom: 6px; }
+.id-kpi-value { font-size: 24px; font-weight: 800; color: var(--id-blue); font-variant-numeric: tabular-nums; }
+.id-kpi-value.id-green { color: #16a34a; }
+.id-kpi-value.id-amber { color: var(--id-amber); }
+
+/* ===== 图表/报告卡片 ===== */
+.id-chart-card, .id-reports-card {
+  background: #fff; border: 1px solid var(--id-border); border-radius: 10px;
+  padding: 18px 20px; margin-bottom: 14px;
+}
+
+/* ===== 入场动画 ===== */
+.id-enter { animation: idFadeUp 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes idFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .industry-data-page { padding: 16px; }
+  .id-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}

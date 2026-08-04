@@ -1,0 +1,288 @@
+/**
+ * 行业报告页面样式
+ * 设计方向：Data-Dense Dashboard（数据密集型看板）
+ * 主色 #1E40AF / 强调 #F59E0B
+ */
+
+/* ===== 设计令牌 ===== */
+.industry-report-page {
+  --ir-blue: #1e40af;
+  --ir-blue-soft: #eff4ff;
+  --ir-amber: #f59e0b;
+  --ir-amber-soft: #fff7e6;
+  --ir-ink: #1f2937;
+  --ir-muted: #6b7280;
+  --ir-border: #e5e7eb;
+  --ir-bg: #f8fafc;
+  --ir-sans: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ir-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif;
+
+  min-height: 100%;
+  background: var(--ir-bg);
+  color: var(--ir-ink);
+  font-family: var(--ir-sans);
+  padding: 24px 28px 40px;
+}
+
+/* 衬线标题（页面主标题 / 详情大标题） */
+.ir-serif-title {
+  font-family: var(--ir-serif);
+  font-weight: 700;
+  color: var(--ir-ink);
+  letter-spacing: 0.02em;
+}
+
+.ir-serif-title.ir-main {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.ir-serif-title.ir-detail {
+  font-size: 26px;
+  line-height: 1.5;
+  margin: 8px 0 4px;
+}
+
+/* 副标题下划线强调 */
+.ir-rule {
+  height: 3px;
+  width: 44px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ir-amber), rgba(245, 158, 11, 0.2));
+  margin: 8px 0 16px;
+}
+
+/* ===== KPI 条 ===== */
+.ir-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.ir-kpi-item {
+  background: #fff;
+  border: 1px solid var(--ir-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 2px rgba(30, 64, 175, 0.04);
+}
+
+.ir-kpi-label {
+  font-size: 12px;
+  color: var(--ir-muted);
+  margin-bottom: 6px;
+}
+
+.ir-kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ir-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.ir-kpi-value.ir-amber {
+  color: var(--ir-amber);
+}
+
+.ir-kpi-delta {
+  font-size: 12px;
+  color: #16a34a;
+  margin-left: 8px;
+}
+
+/* ===== 筛选栏 ===== */
+.ir-filter-bar {
+  background: #fff;
+  border: 1px solid var(--ir-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ===== 表格密度覆盖 ===== */
+.ir-table-card {
+  background: #fff;
+  border: 1px solid var(--ir-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ir-table-card .ant-table {
+  font-size: 13px;
+}
+
+.ir-table-card .ant-table-thead > tr > th {
+  background: #f1f5fb;
+  color: #334155;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ir-border);
+}
+
+.ir-table-card .ant-table-tbody > tr > td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* 行 hover 高亮 */
+.ir-table-card .ant-table-tbody > tr:hover > td {
+  background: var(--ir-blue-soft) !important;
+}
+
+.ir-table-card .ant-table-row.ir-row-selected > td {
+  background: #e8eefc !important;
+}
+
+/* 热度进度条 */
+.ir-heat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ir-heat .ir-heat-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #f0f2f5;
+  overflow: hidden;
+  min-width: 48px;
+}
+
+.ir-heat .ir-heat-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #fbbf24, var(--ir-amber));
+}
+
+.ir-heat .ir-heat-num {
+  font-size: 11px;
+  color: var(--ir-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 22px;
+  text-align: right;
+}
+
+/* ===== 详情页 ===== */
+.ir-detail-head {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f8ff 100%);
+  border: 1px solid var(--ir-border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.ir-detail-section {
+  background: #fff;
+  border: 1px solid var(--ir-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+
+.ir-section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ir-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ir-section-heading .ir-seq {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--ir-amber-soft);
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ir-detail-body {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #374151;
+  text-align: justify;
+}
+
+.ir-detail-points {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.ir-detail-points li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 10px;
+  line-height: 1.8;
+  font-size: 14px;
+  color: #374151;
+}
+
+.ir-detail-points li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ir-amber);
+}
+
+/* 相关报告卡片 */
+.ir-related-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--ir-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  background: #fff;
+}
+
+.ir-related-item:hover {
+  border-color: var(--ir-blue);
+  background: var(--ir-blue-soft);
+}
+
+/* ===== 入场动画 ===== */
+.ir-enter {
+  animation: irFadeUp 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes irFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .industry-report-page {
+    padding: 16px;
+  }
+  .ir-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "ai-mate-serverless-proxy",
+  "version": "1.0.0",
+  "description": "青宸智汇 Serverless Proxy - AI API proxy layer with security middleware",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

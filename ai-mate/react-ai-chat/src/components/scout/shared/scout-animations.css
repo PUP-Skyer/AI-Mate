@@ -1,0 +1,140 @@
+/* ========================================
+   Scout 面板专用动画
+   ======================================== */
+
+/* 交错入场动画 */
+.scout-panel-section {
+  opacity: 0;
+  animation: scoutCardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.scout-panel-section:nth-child(1) { animation-delay: 0ms; }
+.scout-panel-section:nth-child(2) { animation-delay: 80ms; }
+.scout-panel-section:nth-child(3) { animation-delay: 160ms; }
+.scout-panel-section:nth-child(4) { animation-delay: 240ms; }
+.scout-panel-section:nth-child(5) { animation-delay: 320ms; }
+.scout-panel-section:nth-child(6) { animation-delay: 400ms; }
+
+@keyframes scoutCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ticker 滚动动画 */
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.scout-ticker-track {
+  display: flex;
+  animation: tickerScroll 20s linear infinite;
+}
+
+/* 脉冲发光 - Scout 蓝色变体 */
+.scout-pulse-glow {
+  animation: scoutPulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes scoutPulseGlow {
+  0%, 100% { box-shadow: 0 0 8px var(--panel-glow, rgba(59,130,246,0.3)); }
+  50% { box-shadow: 0 0 20px var(--panel-glow, rgba(59,130,246,0.5)), 0 0 40px var(--panel-glow, rgba(59,130,246,0.2)); }
+}
+
+/* 统计卡片悬停 */
+.scout-stat-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.scout-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 报告卡片 */
+.report-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.report-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--card-accent, #d97757);
+  border-radius: 4px 0 0 4px;
+  transition: width 0.3s ease;
+}
+.report-card:hover::before {
+  width: 6px;
+}
+.report-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 供应商选择卡片 */
+.compare-supplier-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.compare-supplier-card:hover {
+  transform: translateY(-1px);
+}
+.compare-supplier-card.selected {
+  transform: scale(1.02);
+  border-color: var(--panel-accent, #10B981) !important;
+  box-shadow: 0 4px 16px var(--panel-glow, rgba(16,185,129,0.3));
+}
+
+/* 搜索框聚焦发光 */
+.search-glow:focus-within {
+  box-shadow: 0 0 0 2px var(--panel-glow, rgba(217,119,87,0.3));
+  border-color: var(--panel-accent, #d97757);
+}
+
+/* 分类 pill tab */
+.category-pill {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.category-pill:hover {
+  border-color: var(--panel-accent, #d97757);
+  color: var(--panel-accent, #d97757);
+}
+.category-pill.active {
+  background: var(--panel-accent, #d97757);
+  border-color: var(--panel-accent, #d97757);
+  color: #fff;
+}
+
+/* 进度圆点指示器 */
+.progress-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--panel-accent, #10B981);
+  transition: all 0.3s ease;
+}
+.progress-dot.filled {
+  background: var(--panel-accent, #10B981);
+  box-shadow: 0 0 6px var(--panel-glow, rgba(16,185,129,0.5));
+}

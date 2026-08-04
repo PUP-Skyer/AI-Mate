@@ -1,0 +1,109 @@
+/* ─── 军师AI 共享动画库（案牍书院 × 战术沙盘） ─────────── */
+
+/* 分区入场 */
+@keyframes sageFadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 印章盖印动效 */
+@keyframes sageSealStamp {
+  0%   { transform: scale(1.12); box-shadow: 0 0 0 0 var(--sage-glow, rgba(180,83,9,0.5)); }
+  60%  { transform: scale(0.97); }
+  100% { transform: scale(1); box-shadow: 0 0 0 8px transparent; }
+}
+
+/* 预算条增长 */
+@keyframes sageBarGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* 风险格脉动描边 */
+@keyframes sagePulseDot {
+  0%, 100% { box-shadow: 0 0 0 0 var(--sage-glow, rgba(225,29,72,0.4)); }
+  50%      { box-shadow: 0 0 0 6px transparent; }
+}
+
+/* 数字递增入场 */
+@keyframes sageNumberCount {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 交错延迟工具类 */
+.sage-stagger-1 { animation-delay: 0.08s; }
+.sage-stagger-2 { animation-delay: 0.16s; }
+.sage-stagger-3 { animation-delay: 0.24s; }
+.sage-stagger-4 { animation-delay: 0.32s; }
+.sage-stagger-5 { animation-delay: 0.40s; }
+.sage-stagger-6 { animation-delay: 0.48s; }
+.sage-stagger-7 { animation-delay: 0.56s; }
+.sage-stagger-8 { animation-delay: 0.64s; }
+.sage-stagger-9 { animation-delay: 0.72s; }
+
+/* 分区入场类 */
+.sage-fade-in-up {
+  animation: sageFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 印章按钮 */
+.sage-seal-btn {
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sage-seal-btn:active {
+  animation: sageSealStamp 0.3s ease-out;
+}
+
+/* 预算条增长 */
+.sage-bar-grow {
+  transform-origin: left;
+  animation: sageBarGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 风险格脉动 */
+.sage-pulse-dot {
+  animation: sagePulseDot 2.4s ease-in-out infinite;
+}
+
+/* 数字递增 */
+.sage-number-count {
+  animation: sageNumberCount 0.6s ease-out both;
+}
+
+/* 坐标网格背景（暗色：墨底金线） */
+.sage-grid-bg {
+  background-image:
+    linear-gradient(var(--sage-grid-line, rgba(245,158,11,0.05)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sage-grid-line, rgba(245,158,11,0.05)) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* 宣纸点阵（亮色） */
+.sage-paper-noise {
+  background-image: radial-gradient(rgba(120, 100, 60, 0.06) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+/* 尊重系统减弱动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .sage-fade-in-up,
+  .sage-seal-btn:active,
+  .sage-bar-grow,
+  .sage-pulse-dot,
+  .sage-number-count {
+    animation: none;
+  }
+  .sage-stagger-1,
+  .sage-stagger-2,
+  .sage-stagger-3,
+  .sage-stagger-4,
+  .sage-stagger-5,
+  .sage-stagger-6,
+  .sage-stagger-7,
+  .sage-stagger-8,
+  .sage-stagger-9 {
+    animation-delay: 0s;
+  }
+}

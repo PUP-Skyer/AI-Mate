@@ -1,0 +1,37 @@
+{
+  "rules": [],
+  "logs": [
+    {
+      "id": "1785678747098-1zyv0",
+      "ruleId": "1785678739113-hbx7m",
+      "ruleName": "scheduler-test",
+      "status": "success",
+      "message": "定时任务 \"scheduler-test\" 执行成功：\ntick test 21:52:27",
+      "executedAt": 1785678747098
+    },
+    {
+      "id": "1785678747096-h535x",
+      "ruleId": "1785678739113-hbx7m",
+      "ruleName": "scheduler-test",
+      "status": "running",
+      "message": "定时触发: scheduler-test",
+      "executedAt": 1785678747096
+    },
+    {
+      "id": "1785678576125-mc3z9",
+      "ruleId": "1785678576062-71q2n",
+      "ruleName": "????",
+      "status": "success",
+      "message": "规则 \"????\" 执行成功：\n??? 2026/8/2,??????",
+      "executedAt": 1785678576125
+    },
+    {
+      "id": "1785678576102-t6woy",
+      "ruleId": "1785678576062-71q2n",
+      "ruleName": "????",
+      "status": "running",
+      "message": "正在执行规则: ????",
+      "executedAt": 1785678576102
+    }
+  ]
+}

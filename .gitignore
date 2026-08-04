@@ -1,0 +1,91 @@
+# ─── 依赖目录 ───
+node_modules/
+.pnp
+.pnp.js
+
+# ─── 构建产物 ───
+dist/
+dist-ssr/
+build/
+*.local
+.next/
+.nuxt/
+out/
+
+# ─── 环境变量（含密钥，禁止上传） ───
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# 保留 .env.example 作为模板
+!.env.example
+
+# ─── 日志文件 ───
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── 编辑器 / IDE ───
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── 操作系统文件 ───
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── TRAE 内部文件 ───
+.trae/
+.trae-html-share-packages/
+.uploads/
+
+# ─── 缓存 / 临时文件 ───
+.cache/
+.temp/
+.tmp/
+*.tgz
+*.tar.gz
+
+# ─── 测试覆盖率 ───
+coverage/
+*.lcov
+
+# ─── 包管理器锁文件（保留，按需注释） ───
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ─── 大文件 / 二进制 ───
+*.mp4
+*.mov
+*.avi
+*.zip
+*.rar
+*.7z
+
+# ─── 编译输出 ───
+*.tsbuildinfo
+
+# ─── 第三方参考仓库（非本项目代码） ───
+competitive-analysis-main/
+Developer-Zero-To-Mastery-master/
+vibe-coding-cn-main/
+yan-agent-deconstruction/
+grok-build-ecosystem/
+college-agent-prd/
+
+# ─── 功能截图（大文件目录） ───
+功能截图/

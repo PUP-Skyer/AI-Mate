@@ -1,0 +1,428 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-08-04T09:25:19.739Z",
+  "updatedBy": "auto-refresh",
+  "source": "fetched",
+  "industries": [
+    {
+      "industry": "人工智能",
+      "color": "#1677ff",
+      "marketSize": "1.2万亿",
+      "growthRate": 28.5,
+      "reportCount": 4523,
+      "hotIndex": 92,
+      "dataPoints": {
+        "前年": 8600,
+        "去年": 10400,
+        "今年": 12800
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                8600,
+                10400,
+                12800
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-人工智能-1785835515628-0",
+          "title": "2026企业家太阳岛年会|第一届成品油流通行业数智化发展论坛举行_新...",
+          "institution": "人工智能",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291MSNWqgjh34vljpXp0hu3m0LEg2FsOZOGVA4piu9xFuSEhbNgOXRXTPGxwYdHpU13fCS38EfOpv6bbAp6VRqT6Q"
+        },
+        {
+          "id": "ID-人工智能-1785835515628-1",
+          "title": "2026中国人工智能产业发展与商业应用白皮书",
+          "institution": "人工智能",
+          "publishedAt": "2026-08-04",
+          "url": "http://mp.weixin.qq.com/s?src=11&amp;timestamp=1785835516&amp;ver=6884&amp;signature=J-eW1bVAwBDYgHXGj24ACmj*6sfmB4UOvwj3jEzVO*wXebAq8dgIfYvdz407HyVUTzmmSkFoAfFI8ib9RBviAhbIxi6HXRcIKp76K6V2SlM69OuCz4yfVhbvPc-MYID1&amp;new=1"
+        },
+        {
+          "id": "ID-人工智能-1785835515628-2",
+          "title": "特别报道丨AI手机：从合规放行到产业爆发仍面临多维度挑战 - 今日头条",
+          "institution": "人工智能",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291PD0T3DYzJqFDoBhFbePHvernilvTOuwmnIEdcgab4jYaCV5A9h-9K2-oNQPVX-zto."
+        },
+        {
+          "id": "ID-人工智能-1785835515628-3",
+          "title": "下半年经济工作为何重点部署人工智能？|AI|产业|政策|会议|债券_新浪...",
+          "institution": "人工智能",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291Ode25g20YjoBT5WIwiJVZ9AqhgwkgI_7HrELotdvghiDlB98Sng9BkOIfOwSaGMy9g-dI7G_FSna3mlRzfPLR2"
+        },
+        {
+          "id": "ID-人工智能-1785835515628-4",
+          "title": "赢家通吃,还是百花齐放？AI产业格局的四层推演|AI Index 2026|市场份...",
+          "institution": "人工智能",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291Ode25g20YjoBT5WIwiJVZ9dM8k4mHsQbRu72AJbtim287N7G1mJKWbHOXPzHJhFn78egExZ3tzmeT_S7y5DdLS7zBdeL8J0Rs."
+        }
+      ],
+      "sources": [
+        "公开搜索聚合"
+      ]
+    },
+    {
+      "industry": "新能源",
+      "color": "#52c41a",
+      "marketSize": "8600亿",
+      "growthRate": 24.2,
+      "reportCount": 2891,
+      "hotIndex": 86,
+      "dataPoints": {
+        "前年": 6100,
+        "去年": 7400,
+        "今年": 8600
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                6100,
+                7400,
+                8600
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-新能源-1785835516842-0",
+          "title": "IEA:2026年全球氢能评估报告_新浪科技_新浪网",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291P33igiXMgxhPGAKHZRnahNxmquGczJcb2OtMXVgkGyEEW7T7H9hkVtNDZUNEf4Tg1QeBPu_XS_fkdbAQHTuy53IeZ8aQ291kY."
+        },
+        {
+          "id": "ID-新能源-1785835516842-1",
+          "title": "2026年中国新能源汽车电子行业报告出炉!",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "http://mp.weixin.qq.com/s?src=11&amp;timestamp=1785835517&amp;ver=6884&amp;signature=3zLVW-TvcxqdJoBhYHpTzGO-BAF*DM9Ilf0tc2ms48LIClUaxrMCo64MrVMRMlB6WoL87VNLhEZZcnWrzfTVA7LliU-BukZwofEEmXy7YZ06L0RVj7NOaP0CO4fb7chu&amp;new=1"
+        },
+        {
+          "id": "ID-新能源-1785835516842-2",
+          "title": "2022年我国新能源充电桩行业发展现状及趋势分析 - 知乎",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBMpf1rwNGe4T0OPa9Pf4Dgg.."
+        },
+        {
+          "id": "ID-新能源-1785835516842-3",
+          "title": "乘风破浪 驰行全球|易车联合中汽信科发布《中国汽车出海2026年上半...",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291MSNWqgjh34vonCsu8Kl4bGnLgWFqSib2de8pWk62kdaWdSMIBZRovUsyrQuFssCbtOdCwJPC9Gn_M35h5RG9-s"
+        },
+        {
+          "id": "ID-新能源-1785835516842-4",
+          "title": "2021年中国汽车转向系统行业分析报告-行业规模与发..._知乎",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBtcOkgzSJL07utnVnh5alWA.."
+        },
+        {
+          "id": "ID-新能源-1785835516842-5",
+          "title": "数据电缆行业市场趋势报告:2021年行业现状,到..._知乎",
+          "institution": "新能源",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBFCKTy2CITslwwfIJ_9jHMw.."
+        }
+      ],
+      "sources": [
+        "公开搜索聚合"
+      ]
+    },
+    {
+      "industry": "智慧餐饮",
+      "color": "#fa8c16",
+      "marketSize": "4200亿",
+      "growthRate": 19.6,
+      "reportCount": 1547,
+      "hotIndex": 71,
+      "dataPoints": {
+        "前年": 2900,
+        "去年": 3600,
+        "今年": 4200
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                2900,
+                3600,
+                4200
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-智慧餐饮-1785835518203-0",
+          "title": "北京市通州区潞城镇敬老院【2026年实地探访测评】 生活照料、房型...",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291PKp3Y3o6RLlAJk-D5TDKo8xgVx65ITroc8hky2qIequVgF47XKsfA7tsCnpVGpPpA."
+        },
+        {
+          "id": "ID-智慧餐饮-1785835518203-1",
+          "title": "和光餐饮早报丨2026.7.25",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "http://mp.weixin.qq.com/s?src=11&amp;timestamp=1785835519&amp;ver=6884&amp;signature=Svex3SYYGHl-zcbiX5oPy30s8TvWcIbV5kAE8NCCYPACzAcOvSBWcvnuSAEtdkoyXLrN9mZevNprHACXQYjG7MbhS1iC8FVyB*rV0Z*RyF4pl9NFvsSfalXH72BTah-*&amp;new=1"
+        },
+        {
+          "id": "ID-智慧餐饮-1785835518203-2",
+          "title": "2021餐饮行业研究报告 - 知乎",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBPvkofTuL53n4EpMReX6bKg.."
+        },
+        {
+          "id": "ID-智慧餐饮-1785835518203-3",
+          "title": "2026团餐行业调研及供需格局、投融资趋势分析_中研普华_中研网",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291Osj6fmiZw1Zg5CjEl5L_RPVSOt_pTGmo9vAPdNBdILLZpDDVol3dvnZdxX4rkQ3Oc."
+        },
+        {
+          "id": "ID-智慧餐饮-1785835518203-4",
+          "title": "...2026年中国在线外卖平台市场发展状况与消费行为调查数据-外卖行...",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291MqNKEmRlGzX9Ej16WXlN0H9SbMuMy11ZFCaxi4QuRvihYYXV5J3n0rfN62uaoa2ZAyAmoos-DJ_wPp1ixyNsjyGzlP9zCINAQIIdu9obddmS9q1puHZtOS1CBFxzCGFdo."
+        },
+        {
+          "id": "ID-智慧餐饮-1785835518203-5",
+          "title": "2026年北京失能养老新引领!北京一福寿山福海养老服务中心位置路线...",
+          "institution": "智慧餐饮",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291PKp3Y3o6RLlAJk-D5TDKo8qeU3EWbGvla9Q84Q0bz2qlhLK8UP-lHStsCnpVGpPpA."
+        }
+      ],
+      "sources": [
+        "公开搜索聚合"
+      ]
+    },
+    {
+      "industry": "智能制造",
+      "color": "#722ed1",
+      "marketSize": "3.4万亿",
+      "growthRate": 12.8,
+      "reportCount": 1328,
+      "hotIndex": 78,
+      "dataPoints": {
+        "前年": 27000,
+        "去年": 30500,
+        "今年": 34000
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                27000,
+                30500,
+                34000
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-智能制造-1785835519117-0",
+          "title": "2026-2032年汽车智能制造装备行业全产业链研究及趋势前景预判...",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "http://mp.weixin.qq.com/s?src=11&amp;timestamp=1785835520&amp;ver=6884&amp;signature=UpKnkrBWUwL1wwdnRP2EAvNCmKsC9FwWh7AN5IDX*VdShTwMtLKIaI9f0mH4f9OsRWnv0KV7SwUZl*4H517WS1DRDfCsRx1-FXoOn-ehJebDiGfcvOHqJlrTyelGCzch&amp;new=1"
+        },
+        {
+          "id": "ID-智能制造-1785835519117-1",
+          "title": "我国智能制造行业市场供需格局及产业发展前景预测报告_知乎",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBbddLIaqGSa_IahXCZKWzNQ.."
+        },
+        {
+          "id": "ID-智能制造-1785835519117-2",
+          "title": "【收藏】智能制造装备行业深度分析报告2018版_知乎",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBdMYJaIDnNqrfZkDxcfFPSg.."
+        },
+        {
+          "id": "ID-智能制造-1785835519117-3",
+          "title": "恒生活海外智能货柜GRABOT入选“2026高品质消费..._行业_中金在线",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=NdaMVEDuTuXDT8ExXkICvVD5zlQaarBf-h7h2DKJxCpsvOOU-0GXXpJ53XMwWngxu7tHPxSXkknkJpJcBDmo0SHmfGkNvdZG"
+        },
+        {
+          "id": "ID-智能制造-1785835519117-4",
+          "title": "艾媒咨询 | 2026-2027年中国消费电子市场状况及标杆企业研究报告-电...",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291MqNKEmRlGzX9Ej16WXlN0H7Rt5O8yZFgfutVzv6Ka0qkhEcQ99vtLOVCiOQr22ePQ--11_JFkjUwR7nNuOr2icruDd10fXrNMa1gK3fWnlGFx_443VPtFi9KkbB6bjYCg."
+        },
+        {
+          "id": "ID-智能制造-1785835519117-5",
+          "title": "收藏！中国传感器规模将超7000亿元：2022最全面深入的产业分析报...",
+          "institution": "智能制造",
+          "publishedAt": "2026-08-04",
+          "url": "/link?url=hedJjaC291OfPyaFZYFLI4KQWvqt63NBDXE1mALeNpSxy1cfHYi1HA.."
+        }
+      ],
+      "sources": [
+        "公开搜索聚合"
+      ]
+    },
+    {
+      "industry": "生物医药",
+      "color": "#eb2f96",
+      "marketSize": "9800亿",
+      "growthRate": 9.4,
+      "reportCount": 1184,
+      "hotIndex": 64,
+      "dataPoints": {
+        "前年": 8200,
+        "去年": 8900,
+        "今年": 9800
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                8200,
+                8900,
+                9800
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-生物医药-1",
+          "title": "生物医药行业 2026 年度发展报告（示例）",
+          "institution": "行业研究机构",
+          "publishedAt": "2026-07-30",
+          "url": "#"
+        }
+      ],
+      "sources": [
+        "mock 基准数据"
+      ]
+    },
+    {
+      "industry": "金融科技",
+      "color": "#13c2c2",
+      "marketSize": "5600亿",
+      "growthRate": 15.7,
+      "reportCount": 1026,
+      "hotIndex": 81,
+      "dataPoints": {
+        "前年": 4000,
+        "去年": 4800,
+        "今年": 5600
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                4000,
+                4800,
+                5600
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-金融科技-1",
+          "title": "金融科技行业 2026 年度发展报告（示例）",
+          "institution": "行业研究机构",
+          "publishedAt": "2026-07-30",
+          "url": "#"
+        }
+      ],
+      "sources": [
+        "mock 基准数据"
+      ]
+    },
+    {
+      "industry": "跨境电商",
+      "color": "#faad14",
+      "marketSize": "3.1万亿",
+      "growthRate": 18.9,
+      "reportCount": 348,
+      "hotIndex": 69,
+      "dataPoints": {
+        "前年": 23000,
+        "去年": 27000,
+        "今年": 31000
+      },
+      "charts": [
+        {
+          "kind": "trend",
+          "title": "近三年市场规模（亿元）",
+          "series": [
+            {
+              "name": "市场规模",
+              "values": [
+                23000,
+                27000,
+                31000
+              ]
+            }
+          ]
+        }
+      ],
+      "reports": [
+        {
+          "id": "ID-跨境电商-1",
+          "title": "跨境电商行业 2026 年度发展报告（示例）",
+          "institution": "行业研究机构",
+          "publishedAt": "2026-07-30",
+          "url": "#"
+        }
+      ],
+      "sources": [
+        "mock 基准数据"
+      ]
+    }
+  ]
+}
