@@ -5,6 +5,7 @@
 
 import type { BMCData } from './bmc-utils';
 import type { RiskMatrixData } from './risk-utils';
+import type { FinancingData } from './finance-utils';
 
 export interface RequirementsReport {
   /** 需求分析表单输入（projectName / ideaContent / targetUser / stage） */
@@ -87,6 +88,30 @@ export function loadRiskData(): RiskMatrixData | null {
 export function saveRiskData(data: RiskMatrixData): void {
   try {
     localStorage.setItem(SAGE_RISK_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage 不可用时静默失败
+  }
+}
+
+export const SAGE_FINANCE_KEY = 'ai-mate-sage-financing-plan';
+
+/** 读取融资规划数据；不存在或损坏返回 null */
+export function loadFinanceData(): FinancingData | null {
+  try {
+    const raw = localStorage.getItem(SAGE_FINANCE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as FinancingData;
+    if (!parsed || typeof parsed.projectName !== 'string' || !Array.isArray(parsed.stages)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/** 保存融资规划数据 */
+export function saveFinanceData(data: FinancingData): void {
+  try {
+    localStorage.setItem(SAGE_FINANCE_KEY, JSON.stringify(data));
   } catch {
     // localStorage 不可用时静默失败
   }

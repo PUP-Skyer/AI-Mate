@@ -1,291 +1,482 @@
 /**
  * 军师AI - 融资规划面板（案四 · 财青）
- * 分区式结构：融资设定 + 方案要点 + 资金用途分配 + 融资方案全文
- * 动画：指标数字递增 / 预算条增长 / 交错入场
+ * 分区式结构：推演输入 + 基础体系四模块 + SVG折线时间轴 + 融资方网格卡片 + 策略总结
+ * 动画：指标数字递增 / 折线绘制 / 卡片交错入场 / 印章CTA
+ * 导出：PDF（打印）/ Word / Markdown
+ * 融资方接口：financingService.ts（后端不可用时使用AI生成数据兜底）
  */
 
-import React from 'react';
-import { Typography, Button } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
-import AIGeneratorForm from '../AIGeneratorForm';
-import { SageSection, SageStatCard } from './shared';
-import { SAGE_FONT_SERIF, type SageTheme } from './sage-theme';
-import { splitByH2, extractKeyValues } from './sage-markdown';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Button, Spin, Typography, Row, Col, Tag, Alert, Space } from 'antd';
+import {
+  SendOutlined,
+  DownloadOutlined,
+  ReloadOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  DollarOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import { chatWithZhipu } from '../../services/aiService';
+import { useAIStore } from '../../store/aiStore';
+import { SAGE_THEMES, SAGE_FONT_SERIF, type SageTheme } from './sage-theme';
+import './sage-animations.css';
+import './finance-print.css';
+import { SageSection } from './shared';
+import {
+  FINANCE_SYSTEM_PROMPT,
+  buildFinanceUserContent,
+  parseFinanceMarkdown,
+  type FinancingData,
+} from './finance-utils';
+import {
+  loadRequirementsReport,
+  loadBMCData,
+  loadRiskData,
+  loadFinanceData,
+  saveFinanceData,
+  type RequirementsReport,
+} from './sage-storage';
+import type { BMCData } from './bmc-utils';
+import type { RiskMatrixData } from './risk-utils';
+import { BMC_DIMENSIONS } from './bmc-utils';
+import FinancingTimeline from './FinancingTimeline';
+import FinancingCards from './FinancingCards';
+import FinancingCardStack from './FinancingCardStack';
+import {
+  loadFinancingCards,
+  addFinancingCards,
+  stageToCard,
+  type FinancingCardData,
+} from './financing-card-storage';
+import { exportFinancePDF, exportFinanceWord, exportFinanceMarkdown, buildFinanceReportHTML } from './finance-export';
 
 const { Text } = Typography;
 
-// 从全文提取关键指标
-const extractMetrics = (result: string): { label: string; value: string }[] => {
-  const all: { label: string; value: string }[] = [];
+const FinancingPlan: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [financeData, setFinanceData] = useState<FinancingData | null>(() => {
+    try { return loadFinanceData(); } catch { return null; }
+  });
+  const [error, setError] = useState('');
+  const [reportVersion, setReportVersion] = useState(0);
+  const [finCardsVersion, setFinCardsVersion] = useState(0);
 
-  // 从键值对行提取
-  for (const line of result.split('\n')) {
-    const m = line.match(/^\s*[-*]?\s*([^：:]{2,12})[：:]\s*(.+)$/);
-    if (m) {
-      const label = m[1].trim();
-      const value = m[2].trim();
-      // 过滤关键指标
-      if (
-        /融资金额|出让比例|估值|股份|期限|周期|目标金额|轮次/.test(label) &&
-        value.length < 20
-      ) {
-        all.push({ label, value });
-      }
+  const isDark = useAIStore((s) => s.settings.theme === 'dark');
+  const theme: SageTheme = SAGE_THEMES.finance;
+  const textColor = isDark ? theme.textDark : theme.textLight;
+  const borderColor = isDark ? theme.borderDark : theme.borderLight;
+
+  // 读取上游数据（reportVersion 变化时重新读取）
+  const report: RequirementsReport | null = useMemo(() => {
+    void reportVersion;
+    return loadRequirementsReport();
+  }, [reportVersion]);
+
+  const bmcData: BMCData | null = useMemo(() => {
+    void reportVersion;
+    return loadBMCData();
+  }, [reportVersion]);
+
+  const riskData: RiskMatrixData | null = useMemo(() => {
+    void reportVersion;
+    return loadRiskData();
+  }, [reportVersion]);
+
+  // 融资阶段3D卡片
+  const finCards: FinancingCardData[] = useMemo(() => {
+    void finCardsVersion;
+    return loadFinancingCards().cards;
+  }, [finCardsVersion]);
+
+  // 添加融资阶段到3D卡片堆
+  const handleAddToCardStack = useCallback(() => {
+    if (!financeData || financeData.stages.length === 0) return;
+    const newCards = financeData.stages.map((stage) =>
+      stageToCard(stage, financeData.projectName)
+    );
+    addFinancingCards(newCards);
+    setFinCardsVersion((v) => v + 1);
+  }, [financeData]);
+
+  // 持久化
+  useEffect(() => {
+    if (financeData) saveFinanceData(financeData);
+  }, [financeData]);
+
+  // 生成融资规划
+  const handleGenerate = async () => {
+    if (!report) {
+      setError('请先在「需求分析」面板生成需求分析报告');
+      return;
     }
-  }
-  // 去重（保留前 6 个）
-  const seen = new Set<string>();
-  return all.filter((p) => {
-    if (seen.has(p.label)) return false;
-    seen.add(p.label);
-    return true;
-  }).slice(0, 6);
-};
-
-// 从"资金用途"章节提取分配比例
-const extractBudget = (result: string, theme: SageTheme): { label: string; value: number; color: string }[] => {
-  const section = splitByH2(result).find(
-    (s) => s.title.includes('资金用途') || s.title.includes('预算') || s.title.includes('分配')
-  );
-  const items: { label: string; value: number }[] = [];
-  const source = section ? section.content : result;
-  for (const line of source.split('\n')) {
-    const m = line.match(/^\s*[-*]?\s*([^：:]{2,12})[：:]\s*(\d+(?:\.\d+)?)\s*%?/);
-    if (m) {
-      const value = parseFloat(m[2]);
-      if (!Number.isNaN(value) && value > 0 && value <= 100) {
-        items.push({ label: m[1].trim(), value });
-      }
-    }
-  }
-  // 不足 3 项时用示例数据兜底
-  const fallback = [
-    { label: '产品研发', value: 40 },
-    { label: '市场推广', value: 35 },
-    { label: '团队扩张', value: 15 },
-    { label: '运营储备', value: 10 },
-  ];
-  const final = items.length >= 2 ? items : fallback;
-  const total = final.reduce((sum, i) => sum + i.value, 0) || 100;
-  return final.map((i, idx) => ({
-    ...i,
-    value: Math.round((i.value / total) * 100),
-    color: theme.chartColors[idx % theme.chartColors.length],
-  }));
-};
-
-const FinancingPlan: React.FC = () => (
-  <AIGeneratorForm
-    title="融资规划"
-    variant="sage"
-    sageTheme="finance"
-    fields={[
-      { name: 'projectName', label: '项目名称', placeholder: '请输入项目名称', required: true },
-      { name: 'industry', label: '所属行业', placeholder: '如：人工智能、消费升级、教育科技...', required: true },
-      { name: 'stage', label: '当前阶段', placeholder: '如：种子轮、天使轮、Pre-A轮...', required: true },
-      { name: 'fundingNeed', label: '融资金额', placeholder: '如：100万、500万...', required: true },
-      { name: 'useOfFunds', label: '资金用途', placeholder: '如：产品研发、市场推广、团队扩张...', required: true },
-    ]}
-    systemPrompt={`你是一位资深融资顾问，擅长为大学生创业团队设计融资方案。请根据提供的信息，生成一份专业的融资规划报告（Markdown格式）。
-
-输出结构（严格使用 ## 二级标题）：
-# 融资规划方案
-
-## 一、项目概述
-- 项目简介与市场定位
-
-## 二、融资目标
-- 融资金额：XXX万元
-- 出让比例：XX%
-- 估值预期：XXX万元
-
-## 三、资金用途规划
-- 产品研发：40%
-- 市场推广：35%
-- 团队扩张：15%
-- 运营储备：10%
-（请按实际情况调整比例，并说明时间节点）
-
-## 四、目标投资人画像
-- 合适的投资机构类型和名单建议
-
-## 五、融资路线图
-- 本轮及未来2-3轮的融资规划
-
-## 六、退出机制
-- 预期退出方式和回报分析
-
-## 七、投资人沟通策略
-- BP准备、路演要点、常见问题应对`}
-    resultTitle="融资规划方案"
-    generateLabel="生成方案"
-    resultRenderer={(result, { theme, isDark }) => {
-      const sections = splitByH2(result);
-      const metrics = extractMetrics(result);
-      const budget = extractBudget(result, theme);
-      const textColor = isDark ? theme.textDark : theme.textLight;
-      const borderColor = isDark ? theme.borderDark : theme.borderLight;
-      const fullSections = sections.filter(
-        (s) => !s.title.includes('资金用途') && !s.title.includes('融资目标') && !s.title.includes('项目概述')
+    setLoading(true);
+    setError('');
+    try {
+      const res = await chatWithZhipu(
+        [{ role: 'user', content: buildFinanceUserContent(report, bmcData, riskData) }],
+        { system_prompt: FINANCE_SYSTEM_PROMPT }
       );
+      const content = res.data?.choices?.[0]?.message?.content || '';
+      const parsed = parseFinanceMarkdown(content, report.inputs.projectName || '未命名项目');
+      setFinanceData(parsed);
+    } catch {
+      setError('生成失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* 分区2：方案要点指标卡 */}
-          {metrics.length > 0 && (
-            <SageSection title="方案要点" subtitle="KEY METRICS" theme={theme} isDark={isDark} stagger={2}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                {metrics.map((m, i) => (
-                  <SageStatCard
-                    key={i}
-                    label={m.label}
-                    value={m.value}
-                    theme={theme}
-                    isDark={isDark}
-                    stagger={i + 1}
-                  />
-                ))}
-              </div>
-            </SageSection>
-          )}
+  // BMC维度完成度
+  const bmcCompletion = useMemo(() => {
+    if (!bmcData) return 0;
+    const filled = BMC_DIMENSIONS.filter(d => {
+      const dim = bmcData.dimensions[d.key];
+      return dim && dim.children.length > 0;
+    }).length;
+    return filled;
+  }, [bmcData]);
 
-          {/* 分区3：资金用途分配 */}
-          <SageSection title="资金用途分配" subtitle="BUDGET ALLOCATION" theme={theme} isDark={isDark} stagger={3}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {budget.map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span
-                    style={{
-                      width: 76,
-                      fontSize: 12.5,
-                      color: textColor,
-                      fontFamily: SAGE_FONT_SERIF,
-                      flexShrink: 0,
-                      textAlign: 'right',
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                  <div
-                    style={{
-                      flex: 1,
-                      height: 22,
-                      background: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.04)',
-                      borderRadius: 6,
-                      overflow: 'hidden',
-                      position: 'relative',
-                    }}
-                  >
-                    <div
-                      className="sage-bar-grow"
-                      style={{
-                        height: '100%',
-                        width: `${item.value}%`,
-                        background: `linear-gradient(90deg, ${item.color}, ${item.color}88)`,
-                        borderRadius: 6,
-                        animationDelay: `${i * 0.12}s`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        paddingRight: 8,
-                        minWidth: 34,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 10.5,
-                          fontWeight: 700,
-                          color: '#fff',
-                          fontFamily: SAGE_FONT_SERIF,
-                        }}
-                      >
-                        {item.value}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </SageSection>
+  // 基础体系模块配置
+  const baseSystemModules = [
+    { key: 'pricing', label: '定价体系', icon: '¥', items: financeData?.baseSystem.pricing || [] },
+    { key: 'serviceProcess', label: '服务流程', icon: '▸', items: financeData?.baseSystem.serviceProcess || [] },
+    { key: 'afterSales', label: '售后标准', icon: '◆', items: financeData?.baseSystem.afterSales || [] },
+    { key: 'accountingRules', label: '财务记账规则', icon: '☰', items: financeData?.baseSystem.accountingRules || [] },
+  ];
 
-          {/* 分区4：融资方案全文 */}
-          <SageSection title="融资方案全文" subtitle="FULL REPORT" theme={theme} isDark={isDark} stagger={4}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-              <Button
-                type="text"
-                icon={<DownloadOutlined />}
-                size="small"
-                onClick={() => {
-                  const blob = new Blob([result], { type: 'text/markdown' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = '融资规划方案.md';
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                style={{ color: theme.accentColor, fontFamily: SAGE_FONT_SERIF, fontSize: 12 }}
-              >
-                导出 Markdown
-              </Button>
-            </div>
-            <div
-              style={{
-                background: isDark ? 'rgba(0,0,0,0.25)' : '#FAF6EF',
-                borderRadius: 8,
+  return (
+    <div
+      className="sage-grid-bg sage-paper-noise"
+      style={{
+        padding: 16,
+        background: isDark ? theme.bgDark : theme.bgLight,
+        borderRadius: 12,
+        minHeight: '100%',
+        '--sage-grid-line': isDark ? theme.glowColor : 'rgba(120,100,60,0.05)',
+      } as React.CSSProperties}
+    >
+      {/* 面板头部 */}
+      <div
+        className="sage-fade-in-up"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '14px 18px',
+          borderRadius: 12,
+          background: isDark ? theme.gradient : theme.gradientLight,
+          marginBottom: 16,
+          border: `1px solid ${borderColor}`,
+        }}
+      >
+        <div style={{
+          width: 44, height: 44, borderRadius: 8,
+          background: theme.sealColor, color: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: SAGE_FONT_SERIF, fontSize: 14, fontWeight: 700, letterSpacing: 2,
+          boxShadow: `0 0 12px ${theme.glowColor}`, flexShrink: 0,
+        }}>
+          {theme.caseNo}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 18, fontWeight: 700, color: textColor, letterSpacing: 2 }}>
+            {theme.title}
+          </div>
+          <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 11, color: theme.accentColor, letterSpacing: 3, opacity: 0.85 }}>
+            FINANCING PLAN
+          </div>
+        </div>
+        {financeData && (
+          <Space className="finance-no-print">
+            <Button type="text" icon={<FilePdfOutlined />} onClick={exportFinancePDF}
+              style={{ color: theme.accentColor, fontFamily: SAGE_FONT_SERIF, fontSize: 12 }}>
+              导出 PDF
+            </Button>
+            <Button type="text" icon={<FileWordOutlined />} onClick={() => exportFinanceWord(financeData)}
+              style={{ color: theme.accentColor, fontFamily: SAGE_FONT_SERIF, fontSize: 12 }}>
+              导出 Word
+            </Button>
+            <Button type="text" icon={<DownloadOutlined />} onClick={() => exportFinanceMarkdown(financeData)}
+              style={{ color: theme.accentColor, fontFamily: SAGE_FONT_SERIF, fontSize: 12 }}>
+              Markdown
+            </Button>
+          </Space>
+        )}
+      </div>
+
+      <Row gutter={[16, 16]}>
+        {/* 分区1：推演输入 */}
+        <Col xs={24} lg={financeData ? 8 : 24}>
+          <SageSection title="推演输入" subtitle="FINANCE INPUT" theme={theme} isDark={isDark} stagger={1}>
+            {/* 需求分析来源卡 */}
+            {report ? (
+              <div style={{
+                padding: '10px 12px', borderRadius: 8,
                 border: `1px solid ${borderColor}`,
-                padding: '14px 16px',
-                maxHeight: 360,
-                overflow: 'auto',
+                background: isDark ? 'rgba(0,0,0,0.2)' : '#fff',
+                marginBottom: 14,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12.5, fontWeight: 700, color: textColor }}>
+                    需求分析来源
+                  </span>
+                  <Button type="text" size="small" icon={<ReloadOutlined />}
+                    onClick={() => setReportVersion(v => v + 1)}
+                    style={{ color: theme.accentColor, fontFamily: SAGE_FONT_SERIF, fontSize: 11 }}>
+                    刷新
+                  </Button>
+                </div>
+                <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12, color: textColor, lineHeight: 1.7 }}>
+                  <div>项目名称：{report.inputs.projectName || '—'}</div>
+                  <div>目标用户：{report.inputs.targetUser || '—'}</div>
+                  <div>当前阶段：{report.inputs.stage || '—'}</div>
+                </div>
+                <Tag color="teal" style={{ marginTop: 6, fontFamily: SAGE_FONT_SERIF, fontSize: 11 }}>
+                  已就绪 · {new Date(report.updatedAt).toLocaleDateString()}
+                </Tag>
+              </div>
+            ) : (
+              <Alert type="warning" showIcon style={{ marginBottom: 14 }}
+                message="尚未生成需求分析报告"
+                description="请先切换到「需求分析」面板完成生成，本面板将自动基于该报告进行融资规划。"
+              />
+            )}
+
+            {/* BMC来源卡 */}
+            {bmcData ? (
+              <div style={{
+                padding: '10px 12px', borderRadius: 8,
+                border: `1px solid ${borderColor}`,
+                background: isDark ? 'rgba(0,0,0,0.2)' : '#fff',
+                marginBottom: 14,
+              }}>
+                <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12.5, fontWeight: 700, color: textColor, marginBottom: 4 }}>
+                  商业模式画布来源
+                </div>
+                <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12, color: textColor, lineHeight: 1.7 }}>
+                  <div>项目名称：{bmcData.projectName}</div>
+                  <div>维度完成度：{bmcCompletion} / 9</div>
+                </div>
+                <Tag color="cyan" style={{ marginTop: 6, fontFamily: SAGE_FONT_SERIF, fontSize: 11 }}>
+                  画布已就绪
+                </Tag>
+              </div>
+            ) : (
+              <Alert type="info" showIcon style={{ marginBottom: 14 }}
+                message="商业模式画布未生成"
+                description="建议先完成商业模式画布以获得更精准的融资规划。"
+              />
+            )}
+
+            {/* 风险矩阵来源卡 */}
+            {riskData && riskData.risks.length > 0 ? (
+              <div style={{
+                padding: '10px 12px', borderRadius: 8,
+                border: `1px solid ${borderColor}`,
+                background: isDark ? 'rgba(0,0,0,0.2)' : '#fff',
+                marginBottom: 14,
+              }}>
+                <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12.5, fontWeight: 700, color: textColor, marginBottom: 4 }}>
+                  风险矩阵来源
+                </div>
+                <div style={{ fontFamily: SAGE_FONT_SERIF, fontSize: 12, color: textColor, lineHeight: 1.7 }}>
+                  <div>风险项数：{riskData.risks.length}</div>
+                </div>
+                <Tag color="red" style={{ marginTop: 6, fontFamily: SAGE_FONT_SERIF, fontSize: 11 }}>
+                  风险已就绪
+                </Tag>
+              </div>
+            ) : (
+              <Alert type="info" showIcon style={{ marginBottom: 14 }}
+                message="风险矩阵未生成"
+                description="建议先完成风险矩阵以在融资规划中纳入风险防范策略。"
+              />
+            )}
+
+            {error && <Alert type="error" showIcon message={error} style={{ marginTop: 12 }} />}
+
+            <Button
+              className="sage-seal-btn"
+              type="primary"
+              icon={<SendOutlined />}
+              onClick={handleGenerate}
+              loading={loading}
+              block
+              disabled={!report}
+              style={{
+                marginTop: 14,
+                background: theme.sealColor,
+                border: 'none',
+                borderRadius: 8,
+                height: 40,
+                fontFamily: SAGE_FONT_SERIF,
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: 2,
+                boxShadow: `0 4px 14px ${theme.glowColor}`,
               }}
             >
-              {fullSections.length > 0 ? (
-                fullSections.map((section, i) => (
-                  <div key={i} style={{ marginBottom: i < fullSections.length - 1 ? 12 : 0 }}>
+              生成融资规划
+            </Button>
+          </SageSection>
+        </Col>
+
+        {/* 分区2-5：融资规划结果 */}
+        {financeData && (
+          <Col xs={24} lg={16}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* 分区2：基础体系搭建 */}
+              <SageSection title="基础体系搭建" subtitle="BASE SYSTEM" theme={theme} isDark={isDark} stagger={2}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                  {baseSystemModules.map((mod) => (
                     <div
+                      key={mod.key}
                       style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: theme.accentColor,
-                        fontFamily: SAGE_FONT_SERIF,
-                        marginBottom: 4,
-                        letterSpacing: 1,
+                        background: isDark ? 'rgba(0,0,0,0.2)' : `${theme.accentColor}06`,
+                        border: `1px solid ${borderColor}`,
+                        borderRadius: 8,
+                        padding: '12px 14px',
                       }}
                     >
-                      {section.title.replace(/^#{1,6}\s*/, '').trim()}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
+                      }}>
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 5,
+                          background: `${theme.accentColor}15`,
+                          color: theme.accentColor,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 12, fontWeight: 700, fontFamily: SAGE_FONT_SERIF,
+                        }}>
+                          {mod.icon}
+                        </span>
+                        <span style={{
+                          fontFamily: SAGE_FONT_SERIF, fontSize: 12.5, fontWeight: 700,
+                          color: textColor, letterSpacing: 0.5,
+                        }}>
+                          {mod.label}
+                        </span>
+                      </div>
+                      {mod.items.length > 0 ? (
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                          {mod.items.map((item, i) => (
+                            <li key={i} style={{
+                              display: 'flex', alignItems: 'flex-start', gap: 6,
+                              marginBottom: 4,
+                            }}>
+                              <span style={{
+                                width: 4, height: 4, borderRadius: '50%',
+                                background: theme.accentColor,
+                                marginTop: 7, flexShrink: 0, opacity: 0.6,
+                              }} />
+                              <span style={{
+                                fontSize: 11.5, color: textColor,
+                                fontFamily: SAGE_FONT_SERIF, lineHeight: 1.6,
+                              }}>
+                                {item}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span style={{ fontSize: 11, color: 'rgba(128,128,128,0.5)', fontFamily: SAGE_FONT_SERIF }}>
+                          暂无数据
+                        </span>
+                      )}
                     </div>
-                    <Text
-                      style={{
-                        color: textColor,
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: SAGE_FONT_SERIF,
-                        lineHeight: 1.8,
-                        fontSize: 12.8,
-                      }}
-                    >
-                      {section.content.trim()}
-                    </Text>
-                  </div>
-                ))
-              ) : (
-                <Text
-                  style={{
+                  ))}
+                </div>
+              </SageSection>
+
+              {/* 分区3：年度融资时间轴 */}
+              <SageSection title="年度融资规划" subtitle="FINANCING TIMELINE" theme={theme} isDark={isDark} stagger={3}>
+                <FinancingTimeline
+                  stages={financeData.stages}
+                  theme={theme}
+                  isDark={isDark}
+                />
+              </SageSection>
+
+              {/* 分区4：融资方推荐 */}
+              <SageSection title="融资方推荐" subtitle="INVESTORS" theme={theme} isDark={isDark} stagger={4}>
+                <FinancingCards
+                  providers={financeData.providers}
+                  theme={theme}
+                  isDark={isDark}
+                />
+              </SageSection>
+
+              {/* 分区5：融资策略总结 */}
+              {financeData.summary && (
+                <SageSection title="融资策略总结" subtitle="STRATEGY SUMMARY" theme={theme} isDark={isDark} stagger={5}>
+                  <Text style={{
                     color: textColor,
                     whiteSpace: 'pre-wrap',
                     fontFamily: SAGE_FONT_SERIF,
                     lineHeight: 1.9,
                     fontSize: 13,
-                  }}
-                >
-                  {result}
-                </Text>
+                  }}>
+                    {financeData.summary}
+                  </Text>
+                </SageSection>
               )}
+
+              {/* 分区6：3D融资阶段卡片堆 */}
+              <SageSection title="融资阶段卡片堆" subtitle="3D CARD STACK" theme={theme} isDark={isDark} stagger={6}>
+                <div style={{ marginBottom: 12 }} className="finance-no-print">
+                  <Button
+                    type="default"
+                    icon={<PlusOutlined />}
+                    onClick={handleAddToCardStack}
+                    disabled={!financeData || financeData.stages.length === 0}
+                    style={{
+                      borderColor: theme.accentColor,
+                      color: theme.accentColor,
+                      fontFamily: SAGE_FONT_SERIF,
+                      fontSize: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    添加融资阶段到卡片堆
+                  </Button>
+                  {finCards.length > 0 && (
+                    <Tag
+                      color="teal"
+                      style={{ marginLeft: 8, fontFamily: SAGE_FONT_SERIF, fontSize: 11 }}
+                    >
+                      已保存 {finCards.length} 张卡片
+                    </Tag>
+                  )}
+                </div>
+                <div className="finance-no-print">
+                  <FinancingCardStack
+                    cards={finCards}
+                    onCardsChange={() => setFinCardsVersion((v) => v + 1)}
+                  />
+                </div>
+              </SageSection>
             </div>
-          </SageSection>
+          </Col>
+        )}
+      </Row>
+
+      {/* 加载态 */}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: 40 }}>
+          <Spin />
+          <Text style={{ display: 'block', marginTop: 12, color: textColor, fontFamily: SAGE_FONT_SERIF }}>
+            <DollarOutlined style={{ marginRight: 6 }} />
+            AI 正在生成全生命周期融资规划...
+          </Text>
         </div>
-      );
-    }}
-  />
-);
+      )}
+
+      {/* 隐藏打印容器（PDF导出用） */}
+      <div id="sage-finance-print-root" style={{ display: 'none' }}
+        dangerouslySetInnerHTML={{ __html: financeData ? buildFinanceReportHTML(financeData) : '' }} />
+    </div>
+  );
+};
 
 export default FinancingPlan;

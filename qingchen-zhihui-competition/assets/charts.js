@@ -67,4 +67,58 @@
     });
     window.addEventListener('resize', function () { trackChart.resize(); });
   }
+
+  // --- Chart: OPC 创业者核心痛点占比 ---
+  var chartPain = document.getElementById('chart-pain');
+  if (chartPain) {
+    var painChart = echarts.init(chartPain, null, { renderer: 'svg' });
+    painChart.setOption({
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        appendToBody: true,
+        formatter: function (params) {
+          var p = params[0];
+          return '<b>' + p.name + '</b><br/>痛点占比：' + p.value + '%';
+        }
+      },
+      grid: { left: 8, right: 56, top: 12, bottom: 8, containLabel: true },
+      xAxis: {
+        type: 'value',
+        max: 100,
+        axisLabel: { color: muted, fontFamily: fontFamily, formatter: '{value}%' },
+        splitLine: { lineStyle: { color: rule } },
+        axisLine: { lineStyle: { color: rule } }
+      },
+      yAxis: {
+        type: 'category',
+        data: ['资金压力大', '商业规划弱', '资源获取难', '运营效率低'],
+        axisLabel: { color: ink, fontFamily: fontFamily, fontSize: 13 },
+        axisLine: { lineStyle: { color: rule } },
+        axisTick: { show: false }
+      },
+      series: [
+        {
+          type: 'bar',
+          barWidth: 24,
+          data: [
+            { value: 68, itemStyle: { color: accent + '77', borderRadius: [0, 6, 6, 0] } },
+            { value: 71, itemStyle: { color: accent + '88', borderRadius: [0, 6, 6, 0] } },
+            { value: 76, itemStyle: { color: accent + 'aa', borderRadius: [0, 6, 6, 0] } },
+            { value: 82, itemStyle: { color: accent, borderRadius: [0, 6, 6, 0] } }
+          ],
+          label: {
+            show: true,
+            position: 'right',
+            formatter: function (p) { return p.value + '%'; },
+            color: ink,
+            fontFamily: fontFamily,
+            fontWeight: 700
+          }
+        }
+      ]
+    });
+    window.addEventListener('resize', function () { painChart.resize(); });
+  }
 })();

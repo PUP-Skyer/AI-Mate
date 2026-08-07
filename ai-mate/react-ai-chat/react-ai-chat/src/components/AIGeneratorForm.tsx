@@ -43,6 +43,8 @@ interface AIGeneratorFormProps {
   demoLabel?: string;
   /** 可选：生成成功后持久化到 localStorage 的 key（如 'ai-mate-sage-requirements-report'），不传则不持久化 */
   persistKey?: string;
+  /** 额外内容：渲染在结果区域之后，独立于文档生成结果（如3D卡片堆） */
+  extraContent?: React.ReactNode;
 }
 
 const AIGeneratorForm: React.FC<AIGeneratorFormProps> = ({
@@ -58,6 +60,7 @@ const AIGeneratorForm: React.FC<AIGeneratorFormProps> = ({
   demoContent,
   demoLabel,
   persistKey,
+  extraContent,
 }) => {
   const [form] = Form.useForm();
   const { t } = useI18n();
@@ -562,6 +565,13 @@ const AIGeneratorForm: React.FC<AIGeneratorFormProps> = ({
             <Text style={{ display: 'block', marginTop: 12, color: mText, fontFamily: MAKER_FONT_SERIF }}>
               {t('aiGen.makerLoading')}
             </Text>
+          </div>
+        )}
+
+        {/* 额外内容（独立于生成结果，如3D卡片堆） */}
+        {extraContent && (
+          <div style={{ marginTop: 16 }}>
+            {extraContent}
           </div>
         )}
       </div>

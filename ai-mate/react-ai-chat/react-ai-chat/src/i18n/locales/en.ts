@@ -45,8 +45,6 @@ export const en = {
   'menu.appCenterDesc': 'Platform capabilities',
   'menu.usageStats': 'Usage',
   'menu.usageStatsDesc': 'Token monitoring',
-  'menu.messageCenter': 'Messages',
-  'menu.messageCenterDesc': 'Notifications & updates',
   'menu.memory': 'Memory',
 
   // ===== AI Roles =====
@@ -129,25 +127,12 @@ export const en = {
   // ===== User profile menu =====
   'profile.upgrade': 'Upgrade',
   'profile.manageAccount': 'Manage account',
-  'profile.messages': 'Messages',
   'profile.language': 'Language',
   'profile.theme': 'Theme',
   'profile.settings': 'Settings',
   'profile.feedback': 'Report an issue',
   'profile.logout': 'Sign out',
   'profile.loggedOut': 'Not signed in',
-
-  // ===== Messages =====
-  'messages.title': 'Message Center',
-  'messages.summary': '{{total}} notifications, {{unread}} unread',
-  'messages.markAll': 'Mark all read',
-  'messages.clear': 'Clear',
-  'messages.empty': 'No notifications',
-  'messages.clearConfirm': 'Clear all notifications?',
-  'messages.hint': 'Notifications sync in real time. Click an unread item to mark it read.',
-  'messages.justNow': 'Just now',
-  'messages.minutesAgo': '{{count}} min ago',
-  'messages.hoursAgo': '{{count}} h ago',
 
   // ===== Memory =====
   'memory.title': 'Memory',
@@ -516,4 +501,23 @@ export const en = {
   'usage.estimateCost': 'Est. ¥{{cost}}',
   'usage.resetSuccess': 'Usage records cleared',
   'usage.resetFailed': 'Reset failed',
+
+  // ===== Maker AI - Prototype cards =====
+  'maker.proto.addCard': 'Add Card',
+  'maker.proto.emptyCards': 'No cards yet, click + to add',
+  'maker.proto.uploadImage': 'Upload Image',
+  'maker.proto.replaceImage': 'Replace Image',
+  'maker.proto.editDesc': 'Double-click or click edit to add description...',
+  'maker.proto.saveDesc': 'Save',
+  'maker.proto.cancelEdit': 'Cancel',
+  'maker.proto.deleteCard': 'Delete Card',
+  'maker.proto.exportDesc': 'Export Description',
+  'maker.proto.storageWarning': 'Data too large, some content may not be saved',
+
+  // ===== Maker AI - Demo video =====
+  'maker.demo.uploadVideo': 'Upload Demo Video',
+  'maker.demo.exportVideo': 'Export Video',
+  'maker.demo.videoTooLarge': 'Video exceeds 15MB, storage may fail',
+  'maker.demo.videoUploadSuccess': 'Video uploaded successfully',
+  'maker.demo.videoHint': 'Supports MP4/WebM, recommended under 15MB',
 };

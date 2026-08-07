@@ -278,9 +278,74 @@
         <p>技术路线上，平台采用 qiankun 微前端架构（Vue 3 + React 19）承载多子应用，后端 Spring Boot 3 + MySQL 8，AI 层接入智谱 GLM-5.1 与扣子 Coze，规划中的 SSE 流式输出、工具调用（function calling）、记忆系统与知识库 RAG 已形成完整的技术演进路径，技术选型均为国产合规方案。</p>
       </section>
 
-      <!-- ============ 02 赛道选择 ============ -->
+      <!-- ============ 02 痛点与核心亮点 ============ -->
+      <section id="s-pain">
+        <h2><span class="sec-no">02</span>痛点分析：核心亮点如何击中需求</h2>
+        <p class="lead">青宸智汇的核心亮点不是功能堆砌，而是逐一对应 OPC 创业者的核心痛点。据项目用户调研，目标用户的痛点优先级为：运营效率低（82%）、资源获取难（76%）、商业规划弱（71%）、资金压力大（68%），叠加"工具碎片化、一人多役"的结构性问题，构成创业服务市场的需求基础。</p>
+
+        <figure class="chart-figure">
+          <figcaption>OPC 创业者核心痛点占比（数据来源：《AI Mate 可行性分析报告》用户调研）</figcaption>
+          <div id="chart-pain" style="width:100%;min-height:300px"></div>
+        </figure>
+
+        <h3>五大痛点画像</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>痛点</th><th>数据</th><th>具体表现</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>运营效率低</strong></td><td class="cell-accent">82%</td><td>一人多役，选品、内容、客服、财务样样亲力亲为，重复性运营工作占据六成以上时间，增长精力被稀释</td></tr>
+              <tr><td><strong>资源获取难</strong></td><td class="cell-accent">76%</td><td>政策、资金、供应商、合作方信息高度不对称，找资源靠人脉和碰运气，供需匹配效率低</td></tr>
+              <tr><td><strong>商业规划弱</strong></td><td class="cell-accent">71%</td><td>缺乏市场分析、竞品调研、商业计划书撰写等专业能力，方向判断凭经验，试错成本高</td></tr>
+              <tr><td><strong>资金压力大</strong></td><td class="cell-accent">68%</td><td>专业 SaaS 工具与外包服务价格高，人力成本刚性，融资渠道少且对接门槛高</td></tr>
+              <tr><td><strong>工具碎片化</strong></td><td>结构性痛点</td><td>调研、写作、管理、客服分散在多个平台，数据割裂、切换成本高，无法沉淀为持续资产</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>核心亮点—痛点映射</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>核心亮点</th><th>击中的痛点</th><th>解决机制</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>四大 AI 数字员工全链路协作</strong></td><td>运营链路碎片化、一人多役</td><td>探路者调研、军师策略、工匠生产、管家管理，在平台内形成"调研—策略—生产—运营"一站闭环</td></tr>
+              <tr><td><strong>AI 自动化替代 60% 以上重复运营</strong></td><td>运营效率低、人力成本高</td><td>智能体 7×24 小时自动执行重复性任务，创业者人力聚焦决策与增长</td></tr>
+              <tr><td><strong>探路者智能资源对接</strong></td><td>资源获取难、信息不对称</td><td>市场行情分析、行业报告查询、供应商搜索、合作伙伴推荐，把"找人脉"变成"问 AI"</td></tr>
+              <tr><td><strong>军师智能运营策略</strong></td><td>商业规划弱</td><td>竞品分析、阶段规划、项目建议、工具栈推荐，让个体创业者拥有顾问级决策支持</td></tr>
+              <tr><td><strong>工匠内容生产自动化</strong></td><td>BP 撰写与内容制作门槛</td><td>商业计划书自动生成、代码开发辅助、内容创作，降低专业能力门槛</td></tr>
+              <tr><td><strong>管家客户服务自动化</strong></td><td>售后与项目管理混乱</td><td>项目管理、FAQ 管理、问题反馈、售后咨询，客户运营不再依赖专人</td></tr>
+              <tr><td><strong>免费增值模式</strong></td><td>资金压力大</td><td>免费起步降低使用门槛，按需增值付费，符合 62% 用户月付 50-300 元的支付意愿</td></tr>
+              <tr><td><strong>国产合规技术栈</strong></td><td>数据安全与合规顾虑</td><td>智谱 GLM 国产大模型、符合《生成式 AI 服务管理暂行办法》，数据可控、成本可控</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="mermaid-box">
+            <pre class="mermaid">
+flowchart TD
+  P1[运营效率低 82%] --> L1[AI 自动化替代 60% 重复运营]
+  P2[资源获取难 76%] --> L2[探路者 智能资源对接]
+  P3[商业规划弱 71%] --> L3[军师 策略辅助 + 工匠 内容生产]
+  P4[资金压力大 68%] --> L4[免费增值模式]
+  P5[工具碎片化 · 一人多役] --> L5[四大数字员工 一站闭环]
+            </pre>
+          </div>
+          <figcaption>痛点与核心亮点的一一映射关系</figcaption>
+        </figure>
+
+        <div class="ok">
+          <span class="t">一句话卖点（可直接用于路演）</span>
+          "一人公司，百人团队"——用四个 AI 数字员工替代 60% 以上的重复性运营，把创业者的精力还给决策与增长。
+        </div>
+      </section>
+
+      <!-- ============ 03 赛道选择 ============ -->
       <section id="s2">
-        <h2><span class="sec-no">02</span>赛道选择：主报科技创新赛道</h2>
+        <h2><span class="sec-no">03</span>赛道选择：主报科技创新赛道</h2>
         <p class="lead">大赛设科技创新、乡村振兴、消费创新三个赛道，每项目只能选报一个。青宸智汇应主报<mark class="key">科技创新赛道</mark>，理由是领域直接命中、满足自主知识产权硬指标、契合河南产业政策、项目出身匹配，四层依据相互支撑。</p>
 
         <h3>三赛道适配度对比</h3>
@@ -325,7 +390,7 @@
 
       <!-- ============ 03 组别与资格 ============ -->
       <section id="s3">
-        <h2><span class="sec-no">03</span>参赛组别与资格核对</h2>
+        <h2><span class="sec-no">04</span>参赛组别与资格核对</h2>
         <p class="lead">项目当前处于商业计划书阶段，默认按<mark class="key">种子组</mark>准备（未完成工商登记注册）；若公司已注册且注册地在河南省内、注册时间 5 年以内（以 2026 年 6 月 30 日为界），则改报成长组并补充营业执照等材料。</p>
 
         <h3>资格红线清单</h3>
@@ -353,7 +418,7 @@
 
       <!-- ============ 04 材料提交 ============ -->
       <section id="s4">
-        <h2><span class="sec-no">04</span>材料提交指南</h2>
+        <h2><span class="sec-no">05</span>材料提交指南</h2>
         <p class="lead">报名通过大赛官方报名系统（http://117.160.17.166:8086）线上完成，材料上传后须经审核推荐方可进入初赛。郑州轻工业大学属省属高校，可经校内推荐直接报送组委会，是首选通道。</p>
 
         <h3>提交流程</h3>
@@ -425,7 +490,7 @@ flowchart LR
 
       <!-- ============ 05 团队分工 ============ -->
       <section id="s5">
-        <h2><span class="sec-no">05</span>团队分工方案（5 人合规版）</h2>
+        <h2><span class="sec-no">06</span>团队分工方案（5 人合规版）</h2>
         <p class="lead">按"总人数不多于 5 人"的红线核定正式名单，五个岗位与大赛四个阶段（报名、初赛、复赛函评、决赛答辩）一一对应。曹梦迪转为队外支持，不占参赛名额。</p>
 
         <h3>岗位设置与职责矩阵</h3>
@@ -488,7 +553,7 @@ flowchart TD
 
       <!-- ============ 06 行动清单 ============ -->
       <section id="s6">
-        <h2><span class="sec-no">06</span>行动清单与时间轴</h2>
+        <h2><span class="sec-no">07</span>行动清单与时间轴</h2>
         <p class="lead">按以下节点推进，可确保在报名截止前完成全部准备并预留缓冲：</p>
 
         <div class="timeline">
@@ -527,7 +592,7 @@ flowchart TD
 
       <!-- ============ 07 风险与对策 ============ -->
       <section id="s7">
-        <h2><span class="sec-no">07</span>参赛风险与对策</h2>
+        <h2><span class="sec-no">08</span>参赛风险与对策</h2>
         <div class="table-wrap">
           <table>
             <thead>

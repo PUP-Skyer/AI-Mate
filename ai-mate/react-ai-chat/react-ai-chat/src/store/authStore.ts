@@ -94,6 +94,13 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         set({ authLoading: false });
         return;
       }
+      // 访客模式：跳过后端校验，直接使用本地用户信息
+      if (token === 'guest-token') {
+        const guestUser = loadStoredUser() || DEFAULT_USER;
+        set({ token, userInfo: guestUser, isAuthenticated: true, authLoading: false });
+        syncUserToAIStore(guestUser);
+        return;
+      }
       try {
         const user = await fetchMe(token);
         localStorage.setItem(USER_KEY, JSON.stringify(user));

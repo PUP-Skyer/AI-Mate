@@ -1,0 +1,135 @@
+/* ─── 管家AI 共享动画库 ─────────────────────────────── */
+
+/* 入场动画 */
+@keyframes butlerFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes butlerCardRise {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes butlerSlideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* 进度条增长 */
+@keyframes butlerBarGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* 脉动点（在线状态/活跃指示） */
+@keyframes butlerPulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: 0.4; }
+}
+
+/* 盖印动效（按钮active时触发） */
+@keyframes butlerSealStamp {
+  0%   { transform: scale(1.3) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* 数字递增入场 */
+@keyframes butlerNumberCount {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 风险预警脉动 */
+@keyframes butlerRiskPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,77,79,0); }
+  50%      { box-shadow: 0 0 12px rgba(255,77,79,0.4); }
+}
+
+/* 圆弧展开（SVG） */
+@keyframes butlerArcReveal {
+  from { stroke-dashoffset: var(--arc-length, 314); }
+  to   { stroke-dashoffset: var(--arc-offset, 0); }
+}
+
+/* 浮动（空状态场景图） */
+@keyframes butlerFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* 骨架屏闪烁 */
+@keyframes butlerShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 交错延迟工具类 */
+.butler-stagger-1 { animation-delay: 0.06s; }
+.butler-stagger-2 { animation-delay: 0.12s; }
+.butler-stagger-3 { animation-delay: 0.18s; }
+.butler-stagger-4 { animation-delay: 0.24s; }
+.butler-stagger-5 { animation-delay: 0.30s; }
+.butler-stagger-6 { animation-delay: 0.36s; }
+.butler-stagger-7 { animation-delay: 0.42s; }
+.butler-stagger-8 { animation-delay: 0.48s; }
+.butler-stagger-9 { animation-delay: 0.54s; }
+
+/* 通用动画类 */
+.butler-fade-in-up {
+  animation: butlerFadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.butler-card-rise {
+  animation: butlerCardRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.butler-slide-in-right {
+  animation: butlerSlideInRight 0.4s ease-out both;
+}
+
+.butler-pulse-dot {
+  animation: butlerPulseDot 2s ease-in-out infinite;
+}
+
+.butler-number-count {
+  animation: butlerNumberCount 0.6s ease-out both;
+}
+
+.butler-risk-pulse {
+  animation: butlerRiskPulse 1.8s ease-in-out infinite;
+}
+
+.butler-float {
+  animation: butlerFloat 3s ease-in-out infinite;
+}
+
+.butler-dot-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='1' fill='%23eb2f96' fill-opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.butler-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(235,47,150,0.04) 25%,
+    rgba(235,47,150,0.08) 50%,
+    rgba(235,47,150,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: butlerShimmer 1.5s ease-in-out infinite;
+}
+
+/* ─── 可访问性：尊重减少动效 ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .butler-fade-in-up,
+  .butler-card-rise,
+  .butler-slide-in-right,
+  .butler-pulse-dot,
+  .butler-number-count,
+  .butler-risk-pulse,
+  .butler-float,
+  .butler-shimmer {
+    animation: none !important;
+  }
+}

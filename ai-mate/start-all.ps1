@@ -43,5 +43,5 @@ Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  青宸智汇 Platform Started!" -ForegroundColor Green
 Write-Host "  URL: http://localhost:3000" -ForegroundColor Cyan
-Write-Host "  Account: test@aimate.com / Test1234" -ForegroundColor Cyan
+Write-Host "  Account: admin@aimate.com / admin123" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Green

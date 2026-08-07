@@ -2,9 +2,10 @@
  * 工匠AI - 原型Demo展示面板（案五 · 翡翠绿）
  * 分区式结构：作品概览 / 作品库 / 预览工坊
  * 动画：卡片交错入场 / 分区交错
+ * 增强：Demo视频上传/导出，数据持久化
  */
 
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import {
   Card,
   Tag,
@@ -19,6 +20,8 @@ import {
   Badge,
   QRCode,
   Tooltip,
+  Upload,
+  message,
 } from 'antd';
 import {
   GithubOutlined,
@@ -30,34 +33,18 @@ import {
   CodeOutlined,
   LeftOutlined,
   EyeOutlined,
+  DownloadOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { useAIStore } from '../../store/aiStore';
 import { MAKER_THEMES, MAKER_FONT_SERIF, type MakerTheme } from './maker-theme';
 import './maker-animations.css';
 import { MakerSection } from './shared';
+ import { loadDemos, saveDemos, type DemoProjectData, type PlatformType } from './demo-storage';
 
 const { Text } = Typography;
 
-type PlatformType = 'web' | 'app' | 'miniapp' | 'desktop' | 'other';
-
-interface DemoProject {
-  id: number;
-  title: string;
-  description: string;
-  stage: string;
-  team_type: 'OPC' | 'OTC';
-  team_members?: string;
-  platform: PlatformType;
-  preview_url?: string;
-  demo_video_url?: string;
-  cover_image?: string;
-  github_url?: string;
-  gitee_url?: string;
-  douyin_url?: string;
-  bilibili_url?: string;
-  x_url?: string;
-  xiaohongshu_url?: string;
-}
+ type DemoProject = DemoProjectData;
 
 const PLATFORM_CONFIG: Record<PlatformType, { label: string; color: string; icon: React.ReactNode }> = {
   web: { label: 'Web网站', color: 'blue', icon: <GlobalOutlined /> },
@@ -126,8 +113,14 @@ const MOCK_DEMOS: DemoProject[] = [
 ];
 
 const PrototypeDemoPanel: React.FC = () => {
-  const [demos, setDemos] = useState<DemoProject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [demos, setDemos] = useState<DemoProject[]>(() => {
+     const stored = loadDemos();
+     return stored && stored.demos.length > 0 ? stored.demos : [];
+  });
+  const [loading, setLoading] = useState(() => {
+     const stored = loadDemos();
+     return !(stored && stored.demos.length > 0);
+  });
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [previewTab, setPreviewTab] = useState<'preview' | 'video'>('preview');
 
@@ -137,22 +130,76 @@ const PrototypeDemoPanel: React.FC = () => {
   const borderColor = isDark ? mTheme.borderDark : mTheme.borderLight;
 
   useEffect(() => {
-    setTimeout(() => {
-      setDemos(MOCK_DEMOS);
-      setLoading(false);
-    }, 500);
-  }, []);
-
+     if (loading) {
+       // 首次使用：加载 Mock 作为初始数据并持久化
+       setTimeout(() => {
+         setDemos(MOCK_DEMOS);
+         saveDemos({ demos: MOCK_DEMOS, updatedAt: Date.now() });
+         setLoading(false);
+       }, 500);
+     }
+  }, [loading]);
+ 
+   // demos 变化时持久化
+   useEffect(() => {
+     if (!loading) {
+       saveDemos({ demos, updatedAt: Date.now() });
+     }
+   }, [demos, loading]);
+ 
+   // 视频上传处理
+   const handleVideoUpload = (demoId: number, file: File) => {
+     if (file.size > 15 * 1024 * 1024) {
+       message.warning('视频超过 15MB，可能导致存储失败');
+     }
+     const reader = new FileReader();
+     reader.onload = () => {
+       const base64 = reader.result as string;
+       setDemos((prev) =>
+         prev.map((d) =>
+           d.id === demoId ? { ...d, demo_video_data: base64 } : d
+         )
+       );
+       message.success('视频上传成功');
+     };
+     reader.onerror = () => message.error('视频读取失败');
+     reader.readAsDataURL(file);
+   };
+ 
+   // 视频导出处理
+   const handleVideoExport = (demo: DemoProject) => {
+     const src = demo.demo_video_data || demo.demo_video_url;
+     if (!src) return;
+     if (src.startsWith('data:')) {
+       const a = document.createElement('a');
+       a.href = src;
+       a.download = `${demo.title}-demo.mp4`;
+       a.click();
+     } else {
+       fetch(src)
+         .then((r) => r.blob())
+         .then((blob) => {
+           const url = URL.createObjectURL(blob);
+           const a = document.createElement('a');
+           a.href = url;
+           a.download = `${demo.title}-demo.mp4`;
+           a.click();
+           URL.revokeObjectURL(url);
+         })
+         .catch(() => message.error('视频导出失败'));
+     }
+   };
+ 
   if (loading) return <Spin style={{ display: 'block', margin: '40px auto' }} />;
   if (demos.length === 0) {
     return <Empty description="暂无 Demo 作品" style={{ marginTop: 40 }} />;
   }
 
   // 平台分布统计
-  const platformCount = demos.reduce<Record<string, number>>((acc, d) => {
-    acc[d.platform] = (acc[d.platform] || 0) + 1;
-    return acc;
-  }, {});
+  const platformCount: Record<string, number> = {};
+  demos.forEach((d) => {
+    platformCount[d.platform] = (platformCount[d.platform] || 0) + 1;
+  });
 
   // 作品列表视图
   if (!selectedId) {
@@ -482,19 +529,45 @@ const PrototypeDemoPanel: React.FC = () => {
               </div>
             )}
             {previewTab === 'video' && (
-              <div style={{ height: 420, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {detail.demo_video_url ? (
-                  <video
-                    src={detail.demo_video_url}
-                    controls
-                    style={{ maxWidth: '100%', maxHeight: '100%' }}
-                  />
-                ) : (
-                  <Space direction="vertical" align="center">
-                    <VideoCameraOutlined style={{ fontSize: 48, color: '#666' }} />
-                    <Text style={{ color: '#999' }}>暂无功能演示视频</Text>
-                  </Space>
-                )}
+               <div style={{ height: 420, background: '#000', position: 'relative' }}>
+                 {detail.demo_video_data || detail.demo_video_url ? (
+                   <>
+                     <video
+                       src={detail.demo_video_data || detail.demo_video_url}
+                       controls
+                       style={{ maxWidth: '100%', maxHeight: '100%' }}
+                     />
+                     {/* 导出视频按钮 */}
+                     <Button
+                       icon={<DownloadOutlined />}
+                       size="small"
+                       style={{ position: 'absolute', top: 8, right: 8 }}
+                       onClick={() => handleVideoExport(detail)}
+                     >
+                       导出视频
+                     </Button>
+                   </>
+                 ) : (
+                   <Space direction="vertical" align="center" style={{ paddingTop: 120 }}>
+                     <VideoCameraOutlined style={{ fontSize: 48, color: '#666' }} />
+                     <Text style={{ color: '#999' }}>暂无功能演示视频</Text>
+                     <Upload
+                       accept="video/*"
+                       showUploadList={false}
+                       beforeUpload={(file) => {
+                         handleVideoUpload(detail.id, file);
+                         return false;
+                       }}
+                     >
+                       <Button type="primary" icon={<UploadOutlined />}>
+                         上传 Demo 视频
+                       </Button>
+                     </Upload>
+                     <Text type="secondary" style={{ fontSize: 11, color: '#666' }}>
+                       支持 MP4/WebM，建议小于 15MB
+                     </Text>
+                   </Space>
+                 )}
               </div>
             )}
           </Card>

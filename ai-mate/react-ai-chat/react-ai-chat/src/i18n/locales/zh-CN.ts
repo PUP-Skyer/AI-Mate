@@ -45,8 +45,6 @@ export const zhCN = {
   'menu.appCenterDesc': '平台能力全景',
   'menu.usageStats': '用量统计',
   'menu.usageStatsDesc': '模型 Token 监控',
-  'menu.messageCenter': '消息中心',
-  'menu.messageCenterDesc': '系统通知与动态',
   'menu.memory': '记忆管理',
 
   // ===== AI 角色 =====
@@ -129,25 +127,12 @@ export const zhCN = {
   // ===== 用户菜单 =====
   'profile.upgrade': '升级权益',
   'profile.manageAccount': '管理账户',
-  'profile.messages': '消息',
   'profile.language': '语言',
   'profile.theme': '主题',
   'profile.settings': '设置',
   'profile.feedback': '报告问题',
   'profile.logout': '退出登录',
   'profile.loggedOut': '未登录',
-
-  // ===== 消息中心 =====
-  'messages.title': '消息中心',
-  'messages.summary': '共 {{total}} 条通知，{{unread}} 条未读',
-  'messages.markAll': '全部已读',
-  'messages.clear': '清空',
-  'messages.empty': '暂无通知',
-  'messages.clearConfirm': '确定清空全部通知？',
-  'messages.hint': '系统通知实时同步，点击未读消息自动标记已读',
-  'messages.justNow': '刚刚',
-  'messages.minutesAgo': '{{count}} 分钟前',
-  'messages.hoursAgo': '{{count}} 小时前',
 
   // ===== 记忆面板 =====
   'memory.title': '记忆管理',
@@ -516,4 +501,23 @@ export const zhCN = {
   'usage.estimateCost': '估算 ¥{{cost}}',
   'usage.resetSuccess': '用量记录已清空',
   'usage.resetFailed': '重置失败',
+
+  // ===== 工匠AI - 原型描述卡片 =====
+  'maker.proto.addCard': '添加卡片',
+  'maker.proto.emptyCards': '暂无卡片，点击下方加号添加',
+  'maker.proto.uploadImage': '上传图片',
+  'maker.proto.replaceImage': '替换图片',
+  'maker.proto.editDesc': '双击或点击编辑按钮添加描述...',
+  'maker.proto.saveDesc': '保存',
+  'maker.proto.cancelEdit': '取消',
+  'maker.proto.deleteCard': '删除卡片',
+  'maker.proto.exportDesc': '导出描述',
+  'maker.proto.storageWarning': '数据量过大，部分内容可能未保存',
+
+  // ===== 工匠AI - 原型Demo视频 =====
+  'maker.demo.uploadVideo': '上传 Demo 视频',
+  'maker.demo.exportVideo': '导出视频',
+  'maker.demo.videoTooLarge': '视频超过 15MB，可能导致存储失败',
+  'maker.demo.videoUploadSuccess': '视频上传成功',
+  'maker.demo.videoHint': '支持 MP4/WebM，建议小于 15MB',
 };

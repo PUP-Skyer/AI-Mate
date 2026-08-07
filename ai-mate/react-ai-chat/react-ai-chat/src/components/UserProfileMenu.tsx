@@ -7,16 +7,12 @@ import React from 'react';
 import {
   Dropdown,
   Avatar,
-  Badge,
-  Button,
-  Divider,
-  Space,
   Typography,
+  Space,
 } from 'antd';
 import {
   ThunderboltOutlined,
   UserOutlined,
-  BellOutlined,
   GlobalOutlined,
   SunOutlined,
   MoonOutlined,
@@ -26,7 +22,6 @@ import {
 } from '@ant-design/icons';
 import { useAIStore } from '../store/aiStore';
 import { useAuthStore } from '../store/authStore';
-import { useNotificationStore } from '../store/notificationStore';
 import { useI18n } from '../i18n';
 import type { ThemeType } from '../types';
 
@@ -40,8 +35,6 @@ const UserProfileMenu: React.FC = () => {
     updateSettings,
   } = useAIStore();
   const { userInfo: authUser, logout } = useAuthStore();
-  const notificationUnread = useNotificationStore((s) => s.unreadCount);
-  const notificationOpen = useNotificationStore((s) => s.open);
   const { t } = useI18n();
 
   const isDark = settings.theme === 'dark';
@@ -87,19 +80,6 @@ const UserProfileMenu: React.FC = () => {
         </div>
       ),
       onClick: () => toggleSettingsDrawer(true),
-    },
-    {
-      key: 'messages',
-      label: (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Space>
-            <BellOutlined />
-            <span>{t('profile.messages')}</span>
-          </Space>
-          <Badge count={notificationUnread} size="small" />
-        </div>
-      ),
-      onClick: () => notificationOpen(),
     },
     { key: 'divider-2', type: 'divider' as const },
     {

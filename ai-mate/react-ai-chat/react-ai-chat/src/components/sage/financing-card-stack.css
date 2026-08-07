@@ -1,0 +1,282 @@
+/* ─── 融资阶段3D卡片堆 - 水平扇形展开 · 财青主题玻璃态 ─────────── */
+
+/* === 透视舞台 === */
+.fin-card-stage {
+  perspective: 1400px;
+  perspective-origin: 30% 50%;
+  position: relative;
+  width: 100%;
+  height: 420px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10%;
+  overflow: hidden;
+  contain: layout style paint;
+  /* 聚光灯: 径向渐变模拟参考图中的 spotlight 效果 */
+  background: radial-gradient(
+    ellipse 60% 80% at 30% 50%,
+    rgba(13, 148, 136, 0.06) 0%,
+    transparent 70%
+  );
+}
+
+/* === 3D 空间层 === */
+.fin-card-layer {
+  position: relative;
+  width: 200px;
+  height: 320px;
+  transform-style: preserve-3d;
+}
+
+/* === 单张卡片基础 === */
+.fin-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform-origin: left center;
+  will-change: transform, opacity;
+  cursor: grab;
+
+  /* 玻璃态背景：半透明财青暗色 + 渐变 */
+  background: linear-gradient(
+    160deg,
+    rgba(15, 46, 43, 0.7) 0%,
+    rgba(10, 30, 28, 0.8) 100%
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+  /* 微光边框 */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+  /* 内嵌光泽 + 外阴影 */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+
+  /* GPU加速过渡 */
+  transition:
+    transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease,
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === 亮色模式适配 === */
+.fin-card-stage.light-mode {
+  background: radial-gradient(
+    ellipse 60% 80% at 30% 50%,
+    rgba(13, 148, 136, 0.03) 0%,
+    transparent 70%
+  );
+}
+
+.fin-card-stage.light-mode .fin-card {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(248, 250, 252, 0.96) 100%
+  );
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* === 科技网格线背景装饰 === */
+.fin-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background-image:
+    linear-gradient(rgba(13, 148, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 148, 136, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+/* === 底部渐变光带 === */
+.fin-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(13, 148, 136, 0.4) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  z-index: 3;
+}
+
+/* === Hover 态：前浮 + 提亮 === */
+.fin-card.hovered {
+  filter: brightness(1.18);
+  border-color: rgba(13, 148, 136, 0.35);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 16px rgba(13, 148, 136, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.fin-card.hovered::after {
+  opacity: 1;
+}
+
+/* === 激活/拖拽态：财青色发光 === */
+.fin-card.active,
+.fin-card.dragging {
+  border-color: rgba(13, 148, 136, 0.5);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(13, 148, 136, 0.4),
+    0 0 48px rgba(13, 148, 136, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  filter: brightness(1.2);
+}
+
+.fin-card.active::after,
+.fin-card.dragging::after {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(13, 148, 136, 0.6) 50%,
+    transparent 100%
+  );
+}
+
+/* === 亮色模式激活态 === */
+.fin-card-stage.light-mode .fin-card.active,
+.fin-card-stage.light-mode .fin-card.dragging {
+  border-color: rgba(13, 148, 136, 0.5);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 0 16px rgba(13, 148, 136, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* === 拖拽态：禁用过渡 === */
+.fin-card.dragging {
+  transition: none !important;
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* === 拖拽中：非激活卡片降低亮度 === */
+.fin-card-layer.is-dragging .fin-card:not(.dragging) {
+  pointer-events: none;
+  filter: brightness(0.5);
+  transition: filter 200ms ease;
+}
+
+/* === 卡片内容层 === */
+.fin-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 18px 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === 年份徽章 === */
+.fin-card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(13, 148, 136, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  z-index: 4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fin-card.active .fin-card-badge,
+.fin-card.dragging .fin-card-badge {
+  background: rgba(13, 148, 136, 0.9);
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.4);
+}
+
+/* === 指标纹理区 === */
+.fin-card-texture {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 24px 0 8px;
+  overflow: hidden;
+}
+
+.fin-card-texture-line {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.fin-card-stage.light-mode .fin-card-texture-line {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* === 底部信息栏 === */
+.fin-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fin-card-stage.light-mode .fin-card-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+/* === 响应式 === */
+@media (max-width: 768px) {
+  .fin-card-stage {
+    height: 360px;
+    padding-left: 5%;
+  }
+  .fin-card-layer {
+    width: 160px;
+    height: 260px;
+  }
+  .fin-card {
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+}
+
+/* === 动效降级 === */
+@media (prefers-reduced-motion: reduce) {
+  .fin-card {
+    transition-duration: 0.01ms !important;
+  }
+  .fin-card.dragging {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,268 @@
+/* ─── 3D文档卡片堆 - 水平扇形展开 · 暗黑科技玻璃态 ─────────── */
+
+/* === 透视舞台 === */
+.doc-card-stage {
+  perspective: 1400px;
+  perspective-origin: 30% 50%;
+  position: relative;
+  width: 100%;
+  height: 420px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10%;
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+/* === 3D 空间层 === */
+.doc-card-layer {
+  position: relative;
+  width: 200px;
+  height: 320px;
+  transform-style: preserve-3d;
+}
+
+/* === 单张卡片基础 === */
+.doc-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform-origin: left center;
+  will-change: transform, opacity;
+  cursor: grab;
+
+  /* 玻璃态背景：半透明深色 + 渐变 */
+  background: linear-gradient(
+    160deg,
+    rgba(35, 35, 50, 0.7) 0%,
+    rgba(20, 20, 35, 0.8) 100%
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+  /* 微光边框 */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+  /* 内嵌光泽 + 外阴影 */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+
+  /* GPU加速过渡 */
+  transition:
+    transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease,
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === 亮色模式适配 === */
+.doc-card-stage.light-mode .doc-card {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(248, 250, 252, 0.96) 100%
+  );
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* === 科技网格线背景装饰 === */
+.doc-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background-image:
+    linear-gradient(rgba(8, 145, 178, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 145, 178, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+/* === 底部渐变光带 === */
+.doc-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(8, 145, 178, 0.4) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  z-index: 3;
+}
+
+/* === Hover 态：前浮 + 提亮 === */
+.doc-card.hovered {
+  filter: brightness(1.18);
+  border-color: rgba(8, 145, 178, 0.35);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 16px rgba(8, 145, 178, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.doc-card.hovered::after {
+  opacity: 1;
+}
+
+/* === 激活/拖拽态：荧光绿发光 === */
+.doc-card.active,
+.doc-card.dragging {
+  border-color: rgba(0, 255, 136, 0.5);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(0, 255, 136, 0.4),
+    0 0 48px rgba(0, 255, 136, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  filter: brightness(1.2);
+}
+
+.doc-card.active::after,
+.doc-card.dragging::after {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 136, 0.6) 50%,
+    transparent 100%
+  );
+}
+
+/* === 亮色模式激活态 === */
+.doc-card-stage.light-mode .doc-card.active,
+.doc-card-stage.light-mode .doc-card.dragging {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 0 16px rgba(16, 185, 129, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* === 拖拽态：禁用过渡 === */
+.doc-card.dragging {
+  transition: none !important;
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* === 拖拽中：非激活卡片降低亮度 === */
+.doc-card-layer.is-dragging .doc-card:not(.dragging) {
+  pointer-events: none;
+  filter: brightness(0.5);
+  transition: filter 200ms ease;
+}
+
+/* === 卡片内容层 === */
+.doc-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 18px 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === 序号徽章 === */
+.doc-card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(8, 145, 178, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.doc-card.active .doc-card-badge,
+.doc-card.dragging .doc-card-badge {
+  background: rgba(0, 255, 136, 0.9);
+  box-shadow: 0 2px 12px rgba(0, 255, 136, 0.4);
+}
+
+/* === 文档缩略纹理（灰色横线模拟文本） === */
+.doc-card-texture {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 24px 0 8px;
+  overflow: hidden;
+}
+
+.doc-card-texture-line {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.doc-card-stage.light-mode .doc-card-texture-line {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* === 底部信息栏 === */
+.doc-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.doc-card-stage.light-mode .doc-card-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+/* === 响应式 === */
+@media (max-width: 768px) {
+  .doc-card-stage {
+    height: 360px;
+    padding-left: 5%;
+  }
+  .doc-card-layer {
+    width: 160px;
+    height: 260px;
+  }
+  .doc-card {
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+}
+
+/* === 动效降级 === */
+@media (prefers-reduced-motion: reduce) {
+  .doc-card {
+    transition-duration: 0.01ms !important;
+  }
+  .doc-card.dragging {
+    transition: none !important;
+  }
+}

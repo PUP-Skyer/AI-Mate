@@ -17,14 +17,11 @@ import {
   DatabaseOutlined,
   AppstoreOutlined,
   BarChartOutlined,
-  BellOutlined,
 } from '@ant-design/icons';
 import { useAIStore } from './store/aiStore';
 import { useAuthStore } from './store/authStore';
-import { useNotificationStore } from './store/notificationStore';
 import { useI18n } from './i18n';
 import LoginPage from './pages/LoginPage';
-import NotificationCenter from './components/NotificationCenter';
 import type { AppPage, AIRole } from './types';
 import ScoutAI from './pages/ScoutAI';
 import SageAI from './pages/SageAI';
@@ -91,12 +88,6 @@ const makeToolMenuItems = (t: (k: string) => string) => [
     icon: <BarChartOutlined />,
     description: t('menu.usageStatsDesc'),
   },
-  {
-    key: 'message-center',
-    label: t('menu.messageCenter'),
-    icon: <BellOutlined />,
-    description: t('menu.messageCenterDesc'),
-  },
 ];
 
 // AI 角色区配置（名称走 i18n）
@@ -125,9 +116,8 @@ const pageComponents: Record<AppPage, React.FC> = {
 };
 
 const App: React.FC = () => {
-  const { currentPage, setCurrentPage, currentRole } = useAIStore();
+  const { currentPage, setCurrentPage } = useAIStore();
   const { isAuthenticated, authLoading, restoreSession } = useAuthStore();
-  const notificationOpen = useNotificationStore((s) => s.open);
   const { t } = useI18n();
   const [memoryOpen, setMemoryOpen] = useState(false);
 
@@ -162,18 +152,10 @@ const App: React.FC = () => {
   }
 
   const handleMenuClick = (key: string) => {
-    // 消息中心走 Drawer 面板，不切换页面
-    if (key === 'message-center') {
-      notificationOpen();
-      return;
-    }
     setCurrentPage(key as AppPage);
   };
 
   const PageComponent = pageComponents[currentPage];
-
-  // 获取当前角色的主题色
-  const currentRoleColor = aiRoleItems.find((item) => item.role === currentRole)?.color || '#1677ff';
 
   return (
     <Layout style={{ height: '100vh' }}>
@@ -344,9 +326,6 @@ const App: React.FC = () => {
 
       {/* 记忆管理面板 */}
       <MemoryPanel open={memoryOpen} onClose={() => setMemoryOpen(false)} />
-
-      {/* 消息中心面板 */}
-      <NotificationCenter />
 
       {/* 主内容区 */}
       <Content

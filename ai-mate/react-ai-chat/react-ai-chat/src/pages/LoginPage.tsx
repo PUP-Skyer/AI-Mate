@@ -256,7 +256,31 @@ const LoginPage: React.FC = () => {
             </Button>
           </Form>
 
-          <div style={{ marginTop: 24, textAlign: 'center' }}>
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <Button
+              type="link"
+              size="small"
+              style={{ color: '#64748b', fontSize: 12, padding: 0 }}
+              onClick={() => {
+                const guestUser = {
+                  id: 0,
+                  email: 'guest@aimate.com',
+                  username: 'AI 创业者',
+                  nickname: 'AI 创业者',
+                  tier: 'free',
+                  tierLabel: '免费',
+                  quickPassCount: 0,
+                };
+                localStorage.setItem('ai_mate_token', 'guest-token');
+                localStorage.setItem('ai_mate_user', JSON.stringify(guestUser));
+                window.location.reload();
+              }}
+            >
+              访客模式直接进入 →
+            </Button>
+          </div>
+
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
             <Text style={{ fontSize: 12, color: '#64748b' }}>
               <ThunderboltOutlined style={{ marginRight: 4 }} />
               {t('auth.agreement')}

@@ -23,11 +23,11 @@ const RiskCardList: React.FC<RiskCardListProps> = ({
   const textColor = isDark ? theme.textDark : theme.textLight;
   const borderColor = isDark ? theme.borderDark : theme.borderLight;
 
-  const items = RISK_QUADRANTS.map(q => {
+  const items = RISK_QUADRANTS.flatMap(q => {
     const levelRisks = risks.filter(r => r.level === q.key);
-    if (levelRisks.length === 0) return null;
+    if (levelRisks.length === 0) return [];
     const meta = RISK_LEVEL_STYLES[q.key];
-    return {
+    return [{
       key: q.key,
       label: (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -71,8 +71,8 @@ const RiskCardList: React.FC<RiskCardListProps> = ({
           ))}
         </div>
       ),
-    };
-  }).filter(Boolean);
+    }];
+  });
 
   const activeKeys = activeLevel ? [activeLevel] : undefined;
 

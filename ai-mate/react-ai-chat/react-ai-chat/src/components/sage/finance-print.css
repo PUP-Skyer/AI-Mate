@@ -1,0 +1,25 @@
+/* 融资规划报告打印样式 */
+@media print {
+  body.sage-finance-printing > *:not(#sage-finance-print-root) {
+    display: none !important;
+  }
+  #sage-finance-print-root {
+    display: block !important;
+    color: #292524;
+    background: #fff;
+  }
+  .finance-no-print { display: none !important; }
+  /* 隐藏3D卡片堆及Drawer */
+  .fin-card-stage { display: none !important; }
+  .ant-drawer { display: none !important; }
+  .sage-fade-in-up { animation: none !important; }
+  .sage-pulse-dot { animation: none !important; }
+  #sage-finance-print-root h1 { color: #115E59; font-size: 22pt; }
+  #sage-finance-print-root h2 { color: #115E59; font-size: 14pt; }
+  #sage-finance-print-root h3 { color: #0F766E; font-size: 12pt; }
+  #sage-finance-print-root table { border-collapse: collapse; width: 100%; }
+  #sage-finance-print-root td, #sage-finance-print-root th {
+    border: 1px solid #ccc; padding: 6pt 8pt; font-size: 10.5pt;
+  }
+  #sage-finance-print-root th { background: #D2F2EE; color: #115E59; }
+}
