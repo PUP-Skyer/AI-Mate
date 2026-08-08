@@ -1,0 +1,215 @@
+/* ─── 工具箱页面 共享动画库 ─────────────────────────────── */
+/* 设计语言：科技蓝 + 玻璃拟态 + 胶囊圆角 */
+/* 镜像 butler-animations.css / sage-animations.css 结构 */
+
+/* ─── 入场动画 ─────────────────────────────────────────── */
+
+@keyframes toolFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toolCardRise {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes toolSlideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toolSlideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── 交互动画 ─────────────────────────────────────────── */
+
+@keyframes toolPulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: 0.4; }
+}
+
+@keyframes toolNumberCount {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toolStatusGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(22,119,255,0); }
+  50%      { box-shadow: 0 0 12px var(--tool-accent-glow, rgba(22,119,255,0.3)); }
+}
+
+@keyframes toolFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes toolBarGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ─── 骨架屏闪烁 ─────────────────────────────────────────── */
+
+@keyframes toolShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── 交错延迟工具类 ─────────────────────────────────────── */
+
+.tool-stagger-1 { animation-delay: 0.06s; }
+.tool-stagger-2 { animation-delay: 0.12s; }
+.tool-stagger-3 { animation-delay: 0.18s; }
+.tool-stagger-4 { animation-delay: 0.24s; }
+.tool-stagger-5 { animation-delay: 0.30s; }
+.tool-stagger-6 { animation-delay: 0.36s; }
+.tool-stagger-7 { animation-delay: 0.42s; }
+.tool-stagger-8 { animation-delay: 0.48s; }
+.tool-stagger-9 { animation-delay: 0.54s; }
+
+/* ─── 通用动画类 ─────────────────────────────────────────── */
+
+.tool-fade-in-up {
+  animation: toolFadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tool-card-rise {
+  animation: toolCardRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tool-slide-in-right {
+  animation: toolSlideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tool-slide-in-left {
+  animation: toolSlideInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tool-pulse-dot {
+  animation: toolPulseDot 2s ease-in-out infinite;
+}
+
+.tool-number-count {
+  animation: toolNumberCount 0.6s ease-out both;
+}
+
+.tool-status-glow {
+  animation: toolStatusGlow 1.8s ease-in-out infinite;
+}
+
+.tool-float {
+  animation: toolFloat 3s ease-in-out infinite;
+}
+
+.tool-bar-grow {
+  transform-origin: left;
+  animation: toolBarGrow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── 玻璃拟态卡片 ─────────────────────────────────────── */
+
+.tool-glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 16px rgba(31, 110, 185, 0.06);
+  border-radius: 16px;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.2s ease;
+}
+
+.tool-glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(31, 110, 185, 0.06), 0 8px 24px rgba(22,119,255,0.08);
+}
+
+/* ─── 胶囊圆角按钮 ─────────────────────────────────────── */
+
+.tool-pill-btn {
+  border-radius: 9999px !important;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.tool-pill-btn:hover {
+  transform: scale(1.03);
+}
+
+.tool-pill-btn:active {
+  transform: scale(0.97);
+}
+
+/* ─── 胶囊圆角输入框 ─────────────────────────────────── */
+
+.tool-pill-input {
+  border-radius: 9999px !important;
+}
+
+/* ─── 胶囊圆角标签 ─────────────────────────────────────── */
+
+.tool-pill-tag {
+  border-radius: 9999px !important;
+  padding: 2px 12px !important;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+/* ─── 骨架屏闪烁类 ─────────────────────────────────────── */
+
+.tool-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(22,119,255,0.04) 25%,
+    rgba(22,119,255,0.08) 50%,
+    rgba(22,119,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: toolShimmer 1.5s ease-in-out infinite;
+}
+
+/* ─── 背景纹理类 ─────────────────────────────────────── */
+
+.tool-dot-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='1' fill='%231677ff' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.tool-grid-bg {
+  background-image:
+    linear-gradient(rgba(22,119,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22,119,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ─── 可访问性：尊重减少动效 ─────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-fade-in-up,
+  .tool-card-rise,
+  .tool-slide-in-right,
+  .tool-slide-in-left,
+  .tool-pulse-dot,
+  .tool-number-count,
+  .tool-status-glow,
+  .tool-float,
+  .tool-bar-grow,
+  .tool-skeleton,
+  .tool-glass-card,
+  .tool-pill-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+  .tool-stagger-1,
+  .tool-stagger-2,
+  .tool-stagger-3,
+  .tool-stagger-4,
+  .tool-stagger-5,
+  .tool-stagger-6,
+  .tool-stagger-7,
+  .tool-stagger-8,
+  .tool-stagger-9 {
+    animation-delay: 0s !important;
+  }
+}

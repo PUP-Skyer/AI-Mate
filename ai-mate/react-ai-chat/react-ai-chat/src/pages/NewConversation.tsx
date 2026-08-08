@@ -20,6 +20,7 @@ import {
   Card,
   Checkbox,
   Dropdown,
+  Popconfirm,
 } from 'antd';
 import {
   SendOutlined,
@@ -37,9 +38,11 @@ import {
   ThunderboltOutlined,
   CloseOutlined,
   SearchOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { useAIStore, type Message } from '../store/aiStore';
 import { useSkillStore } from '../store/skillStore';
+import { usePlanStore } from '../store/planStore';
 import { getSystemPrompt, type MultimodalMessage } from '../services/aiService';
 import { chatWithTools } from '../services/agentChat';
 import { fetchMemory, buildMemoryInjection } from '../services/memoryService';
@@ -142,18 +145,150 @@ const mockTimeline: TimelineItem[] = [
   },
 ];
 
+// ============ 项目进度：localStorage 持久化 + planStore 同步 ============
+const PROGRESS_STORAGE_KEY = 'ai-mate-project-progress';
+
+/** 从 localStorage 加载进度数据 */
+function loadProgress(): TimelineItem[] | null {
+  try {
+    const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data) && data.length > 0) return data;
+  } catch { /* ignore */ }
+  return null;
+}
+
+/** 保存进度数据到 localStorage */
+function saveProgress(items: TimelineItem[]) {
+  try {
+    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(items));
+  } catch { /* ignore */ }
+}
+
+/** 将 planStore 的 PlanStep[] 转换为 TimelineItem[] */
+function planStepsToTimeline(steps: import('../store/planStore').PlanStep[]): TimelineItem[] {
+  const tagColorMap: Record<string, string> = {
+    scout: 'blue', sage: 'purple', maker: 'orange', butler: 'magenta',
+  };
+  const dotColorMap: Record<string, string> = {
+    scout: '#1677ff', sage: '#722ed1', maker: '#fa8c16', butler: '#eb2f96',
+  };
+  return steps.map((step, idx) => ({
+    id: step.id,
+    date: new Date(step.startedAt || Date.now() + idx * 86400000).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }).replace('/', '-'),
+    weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][new Date(step.startedAt || Date.now() + idx * 86400000).getDay()],
+    tag: step.title.slice(0, 4),
+    tagColor: tagColorMap[step.assignedRole] || 'blue',
+    dotColor: dotColorMap[step.assignedRole] || '#1677ff',
+    description: step.description || step.title,
+    tasks: step.acceptance
+      ? [{ id: `${step.id}-t1`, text: step.acceptance, done: step.status === 'completed' }]
+      : [{ id: `${step.id}-t1`, text: step.title, done: step.status === 'completed' }],
+  }));
+}
+
 // ============ 右侧侧边栏组件（抽屉式，从页面右侧滑出） ============
 const ProjectSidebar: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'artifacts' | 'progress'>('progress');
-  const [tasks, setTasks] = useState<Record<string, boolean>>(() => {
-    const init: Record<string, boolean> = {};
-    mockTimeline.forEach((item) => item.tasks.forEach((t) => (init[t.id] = t.done)));
-    return init;
+
+  // 从 planStore 读取军师AI的项目计划
+  const plans = usePlanStore((s) => s.plans);
+  const activePlanId = usePlanStore((s) => s.activePlanId);
+  const activePlan = plans.find((p) => p.id === activePlanId);
+
+  // 初始化进度数据：localStorage > planStore > mockTimeline
+  const [timeline, setTimeline] = useState<TimelineItem[]>(() => {
+    const stored = loadProgress();
+    if (stored) return stored;
+    if (activePlan && activePlan.steps.length > 0) return planStepsToTimeline(activePlan.steps);
+    return mockTimeline;
   });
 
-  const toggleTask = (taskId: string) => {
-    setTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [newTaskText, setNewTaskText] = useState<Record<string, string>>({});
+
+  // 当 planStore 更新且 localStorage 无数据时，同步计划
+  useEffect(() => {
+    if (!loadProgress() && activePlan && activePlan.steps.length > 0) {
+      setTimeline(planStepsToTimeline(activePlan.steps));
+    }
+  }, [activePlan]);
+
+  // 保存到 localStorage
+  const persistTimeline = (items: TimelineItem[]) => {
+    setTimeline(items);
+    saveProgress(items);
+  };
+
+  const toggleTask = (itemId: string, taskId: string) => {
+    const updated = timeline.map((item) =>
+      item.id === itemId
+        ? { ...item, tasks: item.tasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)) }
+        : item
+    );
+    persistTimeline(updated);
+  };
+
+  const startEdit = (item: TimelineItem) => {
+    setEditingId(item.id);
+    setEditText(item.description);
+  };
+
+  const saveEdit = () => {
+    if (!editingId) return;
+    const updated = timeline.map((item) =>
+      item.id === editingId ? { ...item, description: editText } : item
+    );
+    persistTimeline(updated);
+    setEditingId(null);
+    setEditText('');
+  };
+
+  const addTask = (itemId: string) => {
+    const text = (newTaskText[itemId] || '').trim();
+    if (!text) return;
+    const updated = timeline.map((item) =>
+      item.id === itemId
+        ? { ...item, tasks: [...item.tasks, { id: generateId(), text, done: false }] }
+        : item
+    );
+    persistTimeline(updated);
+    setNewTaskText({ ...newTaskText, [itemId]: '' });
+  };
+
+  const deleteTask = (itemId: string, taskId: string) => {
+    const updated = timeline.map((item) =>
+      item.id === itemId
+        ? { ...item, tasks: item.tasks.filter((t) => t.id !== taskId) }
+        : item
+    );
+    persistTimeline(updated);
+  };
+
+  const deleteTimelineItem = (itemId: string) => {
+    const updated = timeline.filter((item) => item.id !== itemId);
+    persistTimeline(updated);
+  };
+
+  const addTimelineItem = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()];
+    const newItem: TimelineItem = {
+      id: generateId(),
+      date: `${month}-${day}`,
+      weekday,
+      tag: '新增',
+      tagColor: 'default',
+      dotColor: '#8c8c8c',
+      description: '点击编辑按钮修改描述',
+      tasks: [],
+    };
+    persistTimeline([...timeline, newItem]);
   };
 
   return (
@@ -263,7 +398,7 @@ const ProjectSidebar: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
                 }}
               />
 
-              {mockTimeline.map((item) => (
+              {timeline.map((item) => (
                 <div key={item.id} style={{ position: 'relative', marginBottom: 20 }}>
                   {/* 彩色实心圆形节点 */}
                   <div
@@ -281,7 +416,7 @@ const ProjectSidebar: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
                     }}
                   />
 
-                  {/* 日期 + 星期 */}
+                  {/* 日期 + 星期 + 编辑按钮 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <Text strong style={{ fontSize: 13, color: '#333' }}>
                       {item.date}
@@ -296,27 +431,61 @@ const ProjectSidebar: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
                     >
                       {item.tag}
                     </Tag>
+                    {/* 编辑按钮 */}
+                    {editingId === item.id ? (
+                      <Button type="link" size="small" icon={<CheckCircleOutlined />} onClick={saveEdit} style={{ fontSize: 11, padding: '0 4px' }} />
+                    ) : (
+                      <Button type="text" size="small" icon={<EditOutlined />} onClick={() => startEdit(item)} style={{ fontSize: 11, padding: '0 4px', color: '#999' }} />
+                    )}
+                    {/* 删除整个时间轴节点 */}
+                    <Popconfirm
+                      title="删除此进度阶段？"
+                      description="该阶段下的所有任务将一并删除"
+                      onConfirm={() => deleteTimelineItem(item.id)}
+                      okText="删除"
+                      cancelText="取消"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        style={{ fontSize: 11, padding: '0 4px', color: '#ccc' }}
+                      />
+                    </Popconfirm>
                   </div>
 
-                  {/* 描述文字 */}
-                  <Text
-                    type="secondary"
-                    style={{
-                      fontSize: 12,
-                      display: 'block',
-                      marginBottom: 8,
-                      color: '#888',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {item.description}
-                  </Text>
+                  {/* 描述文字（支持内联编辑） */}
+                  {editingId === item.id ? (
+                    <Input.TextArea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      autoSize={{ minRows: 1, maxRows: 3 }}
+                      onPressEnter={saveEdit}
+                      style={{ fontSize: 12, marginBottom: 8 }}
+                      autoFocus
+                    />
+                  ) : (
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        display: 'block',
+                        marginBottom: 8,
+                        color: '#888',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {item.description}
+                    </Text>
+                  )}
 
-                  {/* 任务列表（出现在纵轴时间点右侧） */}
+                  {/* 任务列表（可勾选 / 删除） */}
                   <div style={{ paddingLeft: 8 }}>
                     {item.tasks.map((task) => (
                       <div
                         key={task.id}
+                        className="task-row"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -324,26 +493,56 @@ const ProjectSidebar: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
                           padding: '4px 0',
                           cursor: 'pointer',
                         }}
-                        onClick={() => toggleTask(task.id)}
+                        onClick={() => toggleTask(item.id, task.id)}
                       >
                         <Checkbox
-                          checked={tasks[task.id]}
+                          checked={task.done}
                           style={{ transform: 'scale(0.85)' }}
                         />
                         <Text
                           style={{
                             fontSize: 12,
-                            textDecoration: tasks[task.id] ? 'line-through' : 'none',
-                            color: tasks[task.id] ? '#aaa' : '#555',
+                            textDecoration: task.done ? 'line-through' : 'none',
+                            color: task.done ? '#aaa' : '#555',
+                            flex: 1,
                           }}
                         >
                           {task.text}
                         </Text>
+                        <DeleteOutlined
+                          style={{ fontSize: 11, color: '#bbb', opacity: 0.5, transition: 'all 0.2s' }}
+                          onClick={(e) => { e.stopPropagation(); deleteTask(item.id, task.id); }}
+                          className="task-delete-icon"
+                        />
                       </div>
                     ))}
+                    {/* 添加新任务 */}
+                    <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+                      <Input
+                        size="small"
+                        placeholder="添加任务..."
+                        value={newTaskText[item.id] || ''}
+                        onChange={(e) => setNewTaskText({ ...newTaskText, [item.id]: e.target.value })}
+                        onPressEnter={() => addTask(item.id)}
+                        style={{ fontSize: 12, flex: 1 }}
+                      />
+                      <Button size="small" type="dashed" icon={<PlusOutlined />} onClick={() => addTask(item.id)} />
+                    </div>
                   </div>
                 </div>
               ))}
+              {/* 新增进度阶段按钮 */}
+              <div style={{ paddingLeft: 0, marginTop: 8 }}>
+                <Button
+                  type="dashed"
+                  size="small"
+                  icon={<PlusOutlined />}
+                  onClick={addTimelineItem}
+                  style={{ width: '100%', fontSize: 12 }}
+                >
+                  新增进度阶段
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -645,19 +844,85 @@ const NewConversation: React.FC = () => {
   };
 
   return (
-    <Layout style={{ height: '100vh', background: '#f5f5f5' }}>
+    <Layout
+      className="new-conv-page tool-page tool-dot-bg"
+      style={{
+        height: '100vh',
+        background: '#f5f7fa',
+        '--tool-accent': '#1677ff',
+        '--tool-accent-glow': 'rgba(22,119,255,0.15)',
+      } as React.CSSProperties}
+    >
+      {/* 胶囊圆角按钮 + 玻璃拟态 + 动画 + 任务删除悬停样式 */}
+      <style>{`
+        .new-conv-page .ant-btn {
+          border-radius: 9999px !important;
+          transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+        .new-conv-page .ant-btn:hover {
+          transform: scale(1.03);
+        }
+        .new-conv-page .ant-btn:active {
+          transform: scale(0.97);
+        }
+        .new-conv-page .ant-btn[type="button"] {
+          border-radius: 9999px !important;
+        }
+        .new-conv-page .ant-input,
+        .new-conv-page .ant-input-affix-wrapper {
+          border-radius: 9999px !important;
+        }
+        .new-conv-page .ant-tabs-tab {
+          border-radius: 9999px 9999px 0 0 !important;
+        }
+        .new-conv-page .ant-tag {
+          border-radius: 9999px !important;
+          padding: 2px 12px !important;
+        }
+        .new-conv-page .ant-card {
+          border-radius: 16px !important;
+        }
+        .new-conv-page .ant-avatar {
+          transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .new-conv-page .ant-avatar:hover {
+          transform: scale(1.08);
+        }
+        .task-row:hover .task-delete-icon {
+          opacity: 1 !important;
+          color: #ff4d4f !important;
+        }
+        .task-delete-icon:hover {
+          opacity: 1 !important;
+          color: #ff4d4f !important;
+          transform: scale(1.2);
+        }
+        /* 消息气泡入场动画 */
+        .new-conv-page .msg-bubble {
+          animation: toolFadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        /* 消息气泡悬停增强 */
+        .new-conv-page .msg-bubble:hover {
+          box-shadow: 0 4px 16px rgba(22,119,255,0.10);
+        }
+      `}</style>
       {/* 中间主内容区（全宽） */}
       <Layout style={{ height: '100%', overflow: 'hidden' }}>
         <Content style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {/* 顶部工具栏 */}
+          {/* 顶部工具栏 — 玻璃拟态 */}
           <div
+            className="tool-glass-card tool-fade-in-up"
             style={{
               padding: '12px 20px',
-              background: '#fff',
-              borderBottom: '1px solid #f0f0f0',
+              background: 'rgba(255, 255, 255, 0.72)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.55)',
+              borderRadius: 0,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              boxShadow: 'none',
             }}
           >
             <Space>
@@ -670,7 +935,6 @@ const NewConversation: React.FC = () => {
                 onNew={handleNewConversation}
                 onDelete={handleDeleteConversation}
               />
-              <Tag color={currentRoleInfo.color}>{currentRoleInfo.label}</Tag>
               {activeConv && (
                 <Text type="secondary" ellipsis style={{ maxWidth: 200, fontSize: 13 }}>
                   {activeConv.title}
@@ -700,30 +964,48 @@ const NewConversation: React.FC = () => {
           <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
             {messages.length === 0 ? (
               <div
+                className="tool-fade-in-up"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
                   height: '100%',
+                  gap: 16,
                 }}
               >
-                <Empty
-                  description={
-                    <Space direction="vertical" align="center">
-                      <Text type="secondary">{t('chat.startWithRole', { role: currentRoleInfo.label })}</Text>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {t('chat.currentRole', { role: currentRoleInfo.label })}
-                      </Text>
-                    </Space>
-                  }
-                />
+                <div
+                  className="tool-float"
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 20,
+                    background: 'linear-gradient(135deg, #1677ff 0%, #36cfc9 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontSize: 28,
+                    boxShadow: '0 8px 24px rgba(22,119,255,0.20)',
+                  }}
+                >
+                  <MessageOutlined />
+                </div>
+                <Space direction="vertical" align="center" size={4}>
+                  <Text style={{ fontSize: 16, fontWeight: 600, color: '#1a1a1a' }}>
+                    {t('chat.startWithRole', { role: currentRoleInfo.label })}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 13 }}>
+                    {t('chat.currentRole', { role: currentRoleInfo.label })}
+                  </Text>
+                </Space>
               </div>
             ) : (
               <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                {messages.map((msg) => (
+                {messages.map((msg, index) => (
                   <div
                     key={msg.id}
+                    className={`msg-bubble tool-fade-in-up tool-stagger-${Math.min(index + 1, 9)}`}
                     style={{
                       display: 'flex',
                       justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
@@ -746,11 +1028,17 @@ const NewConversation: React.FC = () => {
                         maxWidth: '70%',
                         padding: '12px 16px',
                         borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                        background: msg.role === 'user' ? currentRoleInfo.color : '#fff',
+                        background: msg.role === 'user' ? currentRoleInfo.color : 'rgba(255, 255, 255, 0.85)',
+                        backdropFilter: msg.role === 'assistant' ? 'blur(8px)' : undefined,
+                        WebkitBackdropFilter: msg.role === 'assistant' ? 'blur(8px)' : undefined,
+                        border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.6)' : undefined,
                         color: msg.role === 'user' ? '#fff' : '#333',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                        boxShadow: msg.role === 'user'
+                          ? '0 2px 8px rgba(22,119,255,0.15)'
+                          : '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)',
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
+                        transition: 'box-shadow 0.2s ease',
                       }}
                     >
                       {msg.loading ? (
@@ -777,35 +1065,40 @@ const NewConversation: React.FC = () => {
             )}
           </div>
 
-          {/* 输入区域 */}
+          {/* 输入区域 — 玻璃拟态 */}
           <div
             style={{
               padding: '16px 20px',
-              background: '#fff',
-              borderTop: '1px solid #f0f0f0',
+              background: 'rgba(255, 255, 255, 0.72)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.55)',
               position: 'relative',
             }}
           >
             <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
-              {/* Skill 命令下拉提示 */}
+              {/* Skill 命令下拉提示 — 玻璃拟态 */}
               {skillDropdownOpen && matchedSkills.length > 0 && (
                 <div
+                  className="tool-glass-card tool-fade-in-up"
                   style={{
                     position: 'absolute',
                     bottom: '100%',
                     left: 0,
                     right: 80,
                     marginBottom: 8,
-                    background: '#fff',
-                    borderRadius: 8,
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                    border: '1px solid #f0f0f0',
+                    background: 'rgba(255, 255, 255, 0.85)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.6)',
+                    borderRadius: 16,
+                    boxShadow: '0 8px 32px rgba(22,119,255,0.12)',
                     maxHeight: 240,
                     overflow: 'auto',
                     zIndex: 100,
                   }}
                 >
-                  <div style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
+                  <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.4)' }}>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {t('chat.skillTriggerHint', { count: matchedSkills.length })}
                     </Text>
@@ -820,11 +1113,11 @@ const NewConversation: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 8,
-                        borderBottom: '1px solid #f5f5f5',
-                        transition: 'background 0.2s',
+                        borderBottom: '1px solid rgba(255,255,255,0.3)',
+                        transition: 'all 0.2s ease',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f6ffed')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(22,119,255,0.06)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; }}
                     >
                       <ThunderboltOutlined style={{ color: '#52c41a', fontSize: 14 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -843,19 +1136,22 @@ const NewConversation: React.FC = () => {
                 </div>
               )}
 
-              {/* Skill 面板（按钮触发） */}
+              {/* Skill 面板（按钮触发） — 玻璃拟态 */}
               {skillPanelOpen && (
                 <div
+                  className="tool-glass-card tool-fade-in-up"
                   style={{
                     position: 'absolute',
                     bottom: '100%',
                     left: 0,
                     right: 0,
                     marginBottom: 8,
-                    background: '#fff',
-                    borderRadius: 8,
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                    border: '1px solid #f0f0f0',
+                    background: 'rgba(255, 255, 255, 0.85)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.6)',
+                    borderRadius: 16,
+                    boxShadow: '0 8px 32px rgba(22,119,255,0.12)',
                     maxHeight: 360,
                     overflow: 'auto',
                     zIndex: 100,
@@ -863,18 +1159,18 @@ const NewConversation: React.FC = () => {
                     flexDirection: 'column',
                   }}
                 >
-                  {/* 头部 */}
+                  {/* 头部 — 玻璃拟态 */}
                   <div
                     style={{
                       padding: '10px 12px',
-                      borderBottom: '1px solid #f5f5f5',
+                      borderBottom: '1px solid rgba(255,255,255,0.4)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: 8,
                       position: 'sticky',
                       top: 0,
-                      background: '#fff',
+                      background: 'rgba(255,255,255,0.6)',
                       zIndex: 1,
                     }}
                   >
@@ -891,7 +1187,7 @@ const NewConversation: React.FC = () => {
                   </div>
 
                   {/* 搜索 + 分类 */}
-                  <div style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
+                  <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.4)' }}>
                     <Input
                       size="small"
                       placeholder={t('chat.searchSkillPlaceholder')}
@@ -931,21 +1227,22 @@ const NewConversation: React.FC = () => {
                     {panelSkills.length === 0 ? (
                       <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('chat.noSkillMatch')} style={{ margin: '20px 0' }} />
                     ) : (
-                      panelSkills.map((skill) => (
+                      panelSkills.map((skill, idx) => (
                         <div
                           key={skill.id}
                           onClick={() => handleSelectSkill(skill)}
+                          className={`tool-fade-in-up tool-stagger-${Math.min(idx + 1, 9)}`}
                           style={{
                             padding: '8px 12px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
-                            borderBottom: '1px solid #f5f5f5',
-                            transition: 'background 0.2s',
+                            borderBottom: '1px solid rgba(255,255,255,0.3)',
+                            transition: 'all 0.2s ease',
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = '#f6ffed')}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(22,119,255,0.06)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateX(0)'; }}
                         >
                           <ThunderboltOutlined style={{ color: '#52c41a', fontSize: 14, flexShrink: 0 }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -975,9 +1272,10 @@ const NewConversation: React.FC = () => {
                     icon={<ThunderboltOutlined />}
                     onClick={() => setSkillPanelOpen(!skillPanelOpen)}
                     style={{
-                      borderRadius: '8px 0 0 8px',
+                      borderRadius: '9999px 0 0 9999px',
                       color: skillPanelOpen ? '#1677ff' : undefined,
                       borderColor: skillPanelOpen ? '#1677ff' : undefined,
+                      background: skillPanelOpen ? 'rgba(22,119,255,0.06)' : undefined,
                     }}
                   />
                 </Tooltip>
@@ -997,7 +1295,14 @@ const NewConversation: React.FC = () => {
                   onClick={handleSend}
                   loading={isGenerating}
                   disabled={!inputValue.trim()}
-                  style={{ height: 'auto', borderRadius: '0 8px 8px 0', padding: '0 20px' }}
+                  style={{
+                    height: 'auto',
+                    borderRadius: '0 9999px 9999px 0',
+                    padding: '0 20px',
+                    background: 'linear-gradient(135deg, #1677ff 0%, #36cfc9 100%)',
+                    border: 'none',
+                    boxShadow: '0 2px 8px rgba(22,119,255,0.20)',
+                  }}
                 >
                   {t('chat.send')}
                 </Button>

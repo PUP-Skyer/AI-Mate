@@ -18,6 +18,7 @@ const ScoutAI: React.FC = () => {
       title="探路者AI"
       icon={<SearchOutlined />}
       description="资源对接专家 - 帮助发现和对接优质资源"
+      hideHeader
       panels={[
         { key: 'market', label: '市场分析', children: <MarketAnalysis />, fullHeight: true },
         { key: 'competitor', label: '竞品调研', children: <CompetitorResearch />, fullHeight: true },

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 青宸智汇 Chat - 主应用组件
  * 左侧边栏导航：功能区 + AI 角色区
  */
@@ -138,7 +138,7 @@ const App: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0b0f19',
+          background: '#0c1e3e',
         }}
       >
         <Spin size="large" />
@@ -159,14 +159,35 @@ const App: React.FC = () => {
 
   return (
     <Layout style={{ height: '100vh' }}>
+      {/* 胶囊圆角菜单样式 */}
+      <style>{`
+        .pill-menu .ant-menu-item {
+          border-radius: 9999px !important;
+          margin: 4px 8px !important;
+          padding: 0 16px !important;
+          height: 38px !important;
+          line-height: 38px !important;
+          transition: all 0.25s ease !important;
+        }
+        .pill-menu .ant-menu-item:hover {
+          background: rgba(100,150,200,0.15) !important;
+          transform: scale(1.02);
+        }
+        .pill-menu .ant-menu-item-selected {
+          background: rgba(100,150,200,0.25) !important;
+        }
+        .pill-menu .ant-menu-item-selected::after {
+          display: none !important;
+        }
+      `}</style>
       {/* 左侧边栏 */}
       <Sider
         width={200}
         breakpoint={undefined}
         collapsible={false}
         style={{
-          background: '#141414',
-          borderRight: '1px solid #2a2a2a',
+          background: '#0c1e3e',
+          borderRight: '1px solid #1a3358',
         }}
       >
         <div
@@ -180,7 +201,7 @@ const App: React.FC = () => {
           <div
             style={{
               padding: '20px 16px 12px',
-              borderBottom: '1px solid #2a2a2a',
+              borderBottom: '1px solid #1a3358',
               flexShrink: 0,
             }}
           >
@@ -214,7 +235,7 @@ const App: React.FC = () => {
                 padding: '0 8px',
                 marginBottom: 8,
                 display: 'block',
-                color: '#8c8c8c',
+                color: '#6b94c4',
                 fontWeight: 600,
                 letterSpacing: 1.5,
                 textTransform: 'uppercase',
@@ -226,19 +247,20 @@ const App: React.FC = () => {
               mode="inline"
               selectedKeys={toolMenuItems.some((i) => i.key === currentPage) ? [currentPage] : []}
               onClick={({ key }) => handleMenuClick(key)}
+              className="pill-menu"
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#d9d9d9',
+                color: '#c8d8ea',
               }}
               items={toolMenuItems.map((item) => ({
                 key: item.key,
                 icon: (
-                  <span style={{ color: '#8c8c8c' }}>{item.icon}</span>
+                  <span style={{ color: '#6b94c4' }}>{item.icon}</span>
                 ),
                 label: (
                   <Tooltip title={item.description} placement="right">
-                    <span style={{ color: '#d9d9d9' }}>{item.label}</span>
+                    <span style={{ color: '#c8d8ea' }}>{item.label}</span>
                   </Tooltip>
                 ),
               }))}
@@ -246,7 +268,7 @@ const App: React.FC = () => {
             />
 
             {/* 分隔线 */}
-            <div style={{ margin: '16px 8px', borderTop: '1px solid #2a2a2a' }} />
+            <div style={{ margin: '16px 8px', borderTop: '1px solid #1a3358' }} />
 
             <Text
               type="secondary"
@@ -255,7 +277,7 @@ const App: React.FC = () => {
                 padding: '0 8px',
                 marginBottom: 8,
                 display: 'block',
-                color: '#8c8c8c',
+                color: '#6b94c4',
                 fontWeight: 600,
                 letterSpacing: 1.5,
                 textTransform: 'uppercase',
@@ -267,6 +289,7 @@ const App: React.FC = () => {
               mode="inline"
               selectedKeys={[currentPage]}
               onClick={({ key }) => handleMenuClick(key)}
+              className="pill-menu"
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -277,7 +300,7 @@ const App: React.FC = () => {
                   <span style={{ color: item.color }}>{item.icon}</span>
                 ),
                 label: (
-                  <span style={{ color: '#d9d9d9' }}>{item.label}</span>
+                  <span style={{ color: '#c8d8ea' }}>{item.label}</span>
                 ),
                 style: {
                   position: 'relative',
@@ -293,7 +316,7 @@ const App: React.FC = () => {
           <div
             style={{
               padding: '12px 16px',
-              borderTop: '1px solid #2a2a2a',
+              borderTop: '1px solid #1a3358',
               flexShrink: 0,
             }}
           >
@@ -305,15 +328,15 @@ const App: React.FC = () => {
               style={{
                 marginBottom: 8,
                 background: 'transparent',
-                color: '#d9d9d9',
-                borderColor: '#2a2a2a',
+                color: '#c8d8ea',
+                borderColor: '#1a3358',
               }}
             >
               {t('menu.memory')}
             </Button>
             <UserProfileMenu />
             <div style={{ marginTop: 8, textAlign: 'center' }}>
-              <Text type="secondary" style={{ fontSize: 11, color: '#595959' }}>
+              <Text type="secondary" style={{ fontSize: 11, color: '#3d5a80' }}>
                 {t('app.version')}
               </Text>
             </div>

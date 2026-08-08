@@ -26,6 +26,7 @@ interface AIRoleLayoutProps {
   panels: PanelItem[];
   themeColor?: string;
   themeSecondary?: string;
+  hideHeader?: boolean;
 }
 
 const ROLE_THEME_COLORS: Record<AIRole, { primary: string; secondary: string }> = {
@@ -43,6 +44,7 @@ const AIRoleLayout: React.FC<AIRoleLayoutProps> = ({
   role,
   themeColor,
   themeSecondary,
+  hideHeader = false,
 }) => {
   const [activeKey, setActiveKey] = useState(panels[0]?.key);
   const [animationKey, setAnimationKey] = useState(0);
@@ -109,6 +111,7 @@ const AIRoleLayout: React.FC<AIRoleLayoutProps> = ({
       `}</style>
       <Content style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         {/* 顶部角色信息栏 */}
+        {!hideHeader && (
         <div
           style={{
             padding: '12px 20px',
@@ -149,6 +152,7 @@ const AIRoleLayout: React.FC<AIRoleLayoutProps> = ({
             </Text>
           </div>
         </div>
+        )}
 
         {/* 标签面板 */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

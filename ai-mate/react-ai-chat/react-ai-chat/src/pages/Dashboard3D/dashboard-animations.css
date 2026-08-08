@@ -1,0 +1,125 @@
+/* ─── Dashboard3D 赛博朋克动画库 ─────────────────────── */
+
+@keyframes dashScanlineMove {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.dash-scanline-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.dash-scanline-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(180deg, transparent, rgba(0, 212, 170, 0.4), transparent);
+  animation: dashScanlineMove 5s linear infinite;
+}
+
+.dash-crt-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 212, 170, 0.015) 2px,
+    rgba(0, 212, 170, 0.015) 4px
+  );
+}
+
+@keyframes dashCardEnter {
+  from { opacity: 0; transform: translateY(24px) scale(0.95); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+.dash-card-enter {
+  animation: dashCardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dashNeonGlow {
+  0%, 100% { text-shadow: 0 0 4px var(--neon-color, #00d4aa), 0 0 8px var(--neon-color, #00d4aa); }
+  50%      { text-shadow: 0 0 6px var(--neon-color, #00d4aa), 0 0 12px var(--neon-color, #00d4aa), 0 0 20px var(--neon-color, #00d4aa); }
+}
+
+.dash-neon-text {
+  animation: dashNeonGlow 3s ease-in-out infinite;
+}
+
+@keyframes dashAlertBlink {
+  0%, 100% { background: rgba(255, 107, 107, 0.08); border-color: rgba(255, 107, 107, 0.3); box-shadow: 0 0 8px rgba(255, 107, 107, 0.2); }
+  50%      { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.6); box-shadow: 0 0 16px rgba(255, 107, 107, 0.4); }
+}
+
+.dash-alert-blink {
+  animation: dashAlertBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes dashProgressShine {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.dash-progress-bar {
+  background: linear-gradient(
+    90deg,
+    var(--progress-from, #00d4aa) 0%,
+    var(--progress-to, #4a9eff) 50%,
+    var(--progress-from, #00d4aa) 100%
+  );
+  background-size: 200% 100%;
+  animation: dashProgressShine 3s linear infinite;
+}
+
+@keyframes dashDataRefresh {
+  0%   { opacity: 0.3; filter: brightness(1.5); }
+  100% { opacity: 1; filter: brightness(1); }
+}
+
+.dash-data-refresh {
+  animation: dashDataRefresh 0.5s ease-out;
+}
+
+@keyframes dashSignalPulse {
+  0%   { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 var(--signal-color, #00d4aa); }
+  100% { transform: scale(1.5); opacity: 0; box-shadow: 0 0 0 8px transparent; }
+}
+
+.dash-signal-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: dashSignalPulse 2s ease-out infinite;
+}
+
+@keyframes dashKpiSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dash-kpi-enter {
+  animation: dashKpiSlideUp 0.5s ease-out both;
+}
+
+@keyframes dashGlitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+}
+
+.dash-glitch:hover {
+  animation: dashGlitch 0.3s steps(2) infinite;
+}

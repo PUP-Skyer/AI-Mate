@@ -15,7 +15,6 @@ import {
   Select,
   Space,
   Typography,
-  Empty,
   Row,
   Col,
   Tooltip,
@@ -41,6 +40,7 @@ import {
 } from '@ant-design/icons';
 import { useSkillStore } from '../store/skillStore';
 import { useI18n } from '../i18n';
+import { ToolEmptyState } from '../components/tools/shared';
 import type { Skill, SkillCategory } from '../types';
 
 const { Title, Text } = Typography;
@@ -125,14 +125,42 @@ const SkillLibrary: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, height: '100%', overflow: 'auto' }}>
+    <div
+      className="tool-dot-bg"
+      style={{
+        padding: 24,
+        height: '100%',
+        overflow: 'auto',
+        '--tool-accent': '#00b96b',
+        '--tool-accent-glow': 'rgba(0,185,107,0.12)',
+      } as React.CSSProperties}
+    >
       {/* 顶部操作栏 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <Title level={4} style={{ margin: 0 }}>{t('skillLib.title')}</Title>
-          <Text type="secondary">{t('skillLib.subtitle')}</Text>
+      <div
+        className="tool-glass-card tool-fade-in-up"
+        style={{ padding: '16px 24px', marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: 'linear-gradient(135deg, #00b96b, #95de64)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+            }}
+          >
+            <ThunderboltOutlined style={{ fontSize: 20 }} />
+          </div>
+          <div>
+            <Title level={4} style={{ margin: 0 }}>{t('skillLib.title')}</Title>
+            <Text type="secondary">{t('skillLib.subtitle')}</Text>
+          </div>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenDrawer()}>
+        <Button className="tool-pill-btn" type="primary" icon={<PlusOutlined />} onClick={() => handleOpenDrawer()}>
           {t('skillLib.newSkill')}
         </Button>
       </div>
@@ -141,6 +169,7 @@ const SkillLibrary: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col flex="auto">
           <Input
+            className="tool-pill-input"
             placeholder={t('skillLib.searchPlaceholder')}
             prefix={<SearchOutlined />}
             value={searchQuery}
@@ -150,13 +179,15 @@ const SkillLibrary: React.FC = () => {
         </Col>
         <Col>
           <Space>
-            {(Object.keys(categoryConfig) as (SkillCategory | 'all')[]).map((cat) => (
+            {(Object.keys(categoryConfig) as (SkillCategory | 'all')[]).map((cat, index) => (
               <Button
                 key={cat}
+                className={`tool-pill-btn tool-fade-in-up tool-stagger-${index + 1}`}
                 type={activeCategory === cat ? 'primary' : 'default'}
                 size="small"
                 icon={categoryConfig[cat].icon}
                 onClick={() => setActiveCategory(cat)}
+                style={activeCategory === cat ? { backgroundColor: categoryConfig[cat].color, borderColor: categoryConfig[cat].color } : undefined}
               >
                 {categoryConfig[cat].label}
                 {cat !== 'all' && (
@@ -173,14 +204,21 @@ const SkillLibrary: React.FC = () => {
 
       {/* Skill 卡片网格 */}
       {filteredSkills.length === 0 ? (
-        <Empty description={t('skillLib.empty')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <ToolEmptyState
+          icon={<ThunderboltOutlined />}
+          title={t('skillLib.empty')}
+          subtitle={t('skillLib.searchPlaceholder')}
+          accent="#00b96b"
+        />
       ) : (
         <Row gutter={[16, 16]}>
-          {filteredSkills.map((skill) => (
+          {filteredSkills.map((skill, index) => (
             <Col xs={24} sm={12} lg={8} key={skill.id}>
               <Card
+                className={`tool-glass-card tool-card-rise tool-stagger-${index + 1}`}
                 hoverable
                 size="small"
+                style={{ borderRadius: 16 }}
                 styles={{
                   body: { padding: 16 },
                 }}
@@ -200,11 +238,11 @@ const SkillLibrary: React.FC = () => {
                         width: 32,
                         height: 32,
                         borderRadius: 8,
-                        background: `${categoryConfig[skill.category].color}15`,
+                        background: `linear-gradient(135deg, ${categoryConfig[skill.category].color}, ${categoryConfig[skill.category].color}dd)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: categoryConfig[skill.category].color,
+                        color: '#fff',
                       }}
                     >
                       {categoryConfig[skill.category].icon}

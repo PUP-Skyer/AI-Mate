@@ -13,7 +13,6 @@ import {
   Input,
   Tag,
   List,
-  Empty,
   Space,
   Button,
   Select,
@@ -35,7 +34,9 @@ import {
   FileMarkdownOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
+import { ToolEmptyState, ToolSkeleton } from '../components/tools/shared';
 import {
   searchKnowledge,
   fetchKnowledgeDoc,
@@ -198,38 +199,57 @@ const KnowledgeVault: React.FC = () => {
     if (doc.source === 'vault') {
       return (
         <Tooltip title={doc.vaultPath || t('kb.obsidianNote')}>
-          <Tag icon={<FileMarkdownOutlined />} color="purple" style={{ fontSize: 11 }}>
+          <Tag icon={<FileMarkdownOutlined />} color="purple" className="tool-pill-tag" style={{ fontSize: 11 }}>
             {t('kb.obsidian')}
           </Tag>
         </Tooltip>
       );
     }
     return (
-      <Tag color="blue" style={{ fontSize: 11 }}>
+      <Tag color="blue" className="tool-pill-tag" style={{ fontSize: 11 }}>
         {t('kb.builtin')}
       </Tag>
     );
   };
 
   return (
-    <div style={{ padding: 24, height: '100%', overflow: 'auto' }}>
-      <div style={{ marginBottom: 20 }}>
+    <div
+      className="tool-grid-bg"
+      style={{
+        padding: 24,
+        height: '100%',
+        overflow: 'auto',
+        '--tool-accent': '#722ed1',
+        '--tool-accent-glow': 'rgba(114,46,209,0.12)',
+      } as React.CSSProperties}
+    >
+      <div className="tool-glass-card tool-fade-in-up" style={{ padding: '16px 24px', marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>{t('kb.title')}</Title>
         <Text type="secondary">{t('kb.subtitle')}</Text>
       </div>
 
       {/* ============ Obsidian 接入区块 ============ */}
-      <Card size="small" style={{ marginBottom: 16, borderColor: vault.vaultPath ? '#d3adf7' : undefined }}>
+      <Card
+        size="small"
+        className="tool-glass-card tool-fade-in-up"
+        style={{ marginBottom: 16, borderRadius: 16, borderColor: vault.vaultPath ? '#d3adf7' : undefined }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <Space>
             <FolderOpenOutlined style={{ color: '#722ed1', fontSize: 16 }} />
             <Text strong>{t('kb.obsidianTitle')}</Text>
+            {vault.vaultPath && (
+              <span
+                className="tool-pulse-dot"
+                style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#52c41a' }}
+              />
+            )}
             {vault.vaultPath ? (
-              <Tag icon={<CheckCircleOutlined />} color="success" style={{ fontSize: 11 }}>
+              <Tag icon={<CheckCircleOutlined />} color="success" className="tool-pill-tag" style={{ fontSize: 11 }}>
                 {t('kb.connected')}
               </Tag>
             ) : (
-              <Tag style={{ fontSize: 11 }}>{t('kb.notConnected')}</Tag>
+              <Tag className="tool-pill-tag" style={{ fontSize: 11 }}>{t('kb.notConnected')}</Tag>
             )}
           </Space>
           {vault.vaultPath && (
@@ -300,9 +320,10 @@ const KnowledgeVault: React.FC = () => {
       </Card>
 
       {/* 搜索区 */}
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" className="tool-glass-card tool-fade-in-up" style={{ marginBottom: 16, borderRadius: 16 }}>
         <Space.Compact style={{ width: '100%' }}>
           <Input
+            className="tool-pill-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onPressEnter={() => handleSearch()}
@@ -315,7 +336,7 @@ const KnowledgeVault: React.FC = () => {
             style={{ width: 90 }}
             options={[1, 3, 5, 8].map((n) => ({ value: n, label: `Top ${n}` }))}
           />
-          <Button type="primary" onClick={() => handleSearch()} loading={loading}>
+          <Button className="tool-pill-btn" type="primary" onClick={() => handleSearch()} loading={loading}>
             {t('kb.search')}
           </Button>
         </Space.Compact>
@@ -338,16 +359,24 @@ const KnowledgeVault: React.FC = () => {
 
       {/* 检索结果 */}
       {query.trim() ? (
-        docs.length === 0 ? (
-          <Empty description={t('kb.emptyResult')} style={{ padding: 40 }} />
+        loading ? (
+          <ToolSkeleton type="list" />
+        ) : docs.length === 0 ? (
+          <ToolEmptyState
+            icon={<DatabaseOutlined />}
+            title={t('kb.emptyResult')}
+            subtitle={lang === 'en' ? 'Try different keywords or reduce the Top K' : '试试更换关键词或降低检索数量'}
+            accent="#722ed1"
+          />
         ) : (
           <Card size="small" title={t('kb.searchResults', { count: docs.length })} extra={<Button size="small" icon={<SendOutlined />} onClick={handleUseInChat}>{t('kb.useInChat')}</Button>}>
             <List
               dataSource={docs}
-              renderItem={(doc) => (
+              renderItem={(doc, index) => (
                 <List.Item
                   key={doc.id}
-                  style={{ cursor: 'pointer' }}
+                  className={`tool-fade-in-up tool-stagger-${index + 1}`}
+                  style={{ cursor: 'pointer', borderRadius: 12, marginBottom: 4, padding: '12px 16px' }}
                   onClick={() => handleOpenDoc(doc.id)}
                 >
                   <List.Item.Meta
@@ -356,7 +385,7 @@ const KnowledgeVault: React.FC = () => {
                       <Space wrap>
                         <Text strong>{doc.title}</Text>
                         {renderSourceTag(doc)}
-                        <Tag color={CATEGORY_COLORS[doc.category] || 'default'} style={{ fontSize: 11 }}>
+                        <Tag className="tool-pill-tag" color={CATEGORY_COLORS[doc.category] || 'default'} style={{ fontSize: 11 }}>
                           {doc.category}
                         </Tag>
                         {doc.source === 'vault' && doc.vaultPath && (
@@ -380,11 +409,13 @@ const KnowledgeVault: React.FC = () => {
           <List
             grid={{ gutter: 12, column: 2 }}
             dataSource={allDocs}
-            renderItem={(doc) => (
+            renderItem={(doc, index) => (
               <List.Item>
                 <Card
                   size="small"
                   hoverable
+                  className={`tool-glass-card tool-card-rise tool-stagger-${index + 1}`}
+                  style={{ borderRadius: 12 }}
                   onClick={() => handleOpenDoc(doc.id)}
                 >
                   <Space direction="vertical" size={4}>
@@ -394,11 +425,11 @@ const KnowledgeVault: React.FC = () => {
                       {renderSourceTag(doc)}
                     </Space>
                     <Space size={4}>
-                      <Tag color={CATEGORY_COLORS[doc.category] || 'default'} style={{ fontSize: 10 }}>
+                      <Tag className="tool-pill-tag" color={CATEGORY_COLORS[doc.category] || 'default'} style={{ fontSize: 10 }}>
                         {doc.category}
                       </Tag>
                       {(doc.tags || []).slice(0, 3).map((t) => (
-                        <Tag key={t} style={{ fontSize: 10 }}>{t}</Tag>
+                        <Tag key={t} className="tool-pill-tag" style={{ fontSize: 10 }}>{t}</Tag>
                       ))}
                       {doc.source === 'vault' && doc.vaultPath && (
                         <Text type="secondary" style={{ fontSize: 10 }}>{doc.vaultPath}</Text>
@@ -427,9 +458,9 @@ const KnowledgeVault: React.FC = () => {
         {detailDoc && (
           <div>
             <Space style={{ marginBottom: 12 }} wrap>
-              <Tag color={CATEGORY_COLORS[detailDoc.category] || 'default'}>{detailDoc.category}</Tag>
+              <Tag className="tool-pill-tag" color={CATEGORY_COLORS[detailDoc.category] || 'default'}>{detailDoc.category}</Tag>
               {(detailDoc.tags || []).map((t) => (
-                <Tag key={t} style={{ fontSize: 11 }}>{t}</Tag>
+                <Tag key={t} className="tool-pill-tag" style={{ fontSize: 11 }}>{t}</Tag>
               ))}
               {detailDoc.source === 'vault' && detailDoc.vaultPath && (
                 <Text type="secondary" style={{ fontSize: 12 }}>
@@ -439,13 +470,15 @@ const KnowledgeVault: React.FC = () => {
               )}
             </Space>
             <Paragraph
+              className="tool-grid-bg"
               style={{
                 fontSize: 14,
                 lineHeight: 1.8,
                 whiteSpace: 'pre-wrap',
-                background: '#fafafa',
+                background: 'rgba(114, 46, 209, 0.02)',
+                border: '1px solid rgba(114, 46, 209, 0.08)',
                 padding: 16,
-                borderRadius: 8,
+                borderRadius: 12,
               }}
             >
               {detailDoc.content}

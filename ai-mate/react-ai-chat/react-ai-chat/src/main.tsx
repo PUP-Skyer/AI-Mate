@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import AppProviders from './components/AppProviders';
 import './index.css';
+import './components/tools/tool-animations.css';
 
 // ========== qiankun 子应用生命周期 ==========
 

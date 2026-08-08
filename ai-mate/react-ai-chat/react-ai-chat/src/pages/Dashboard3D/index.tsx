@@ -1,13 +1,13 @@
 /**
- * 3D 沉浸式 AI 行业资讯数据看板
- * Three.js + ECharts
- * 布局：右上角3张卡片横向 | 右侧中部3张卡片纵向 | 左下角3D场景
+ * 3D 沉浸式 AI 行业资讯数据看板（高德地图 3D 实景）
+ * 高德地图 JS API 2.0 + 主题驱动
+ * 布局：顶部4卡片横排 | 左下3D地图面板(大) | 右下2卡片纵排
  */
 
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAIStore } from '../../store/aiStore';
+import { getDashboardTheme } from './dashboard-theme';
+import type { DashboardTheme } from './dashboard-theme';
 import {
   ReportCountCard,
   AIPolicyCard,
@@ -16,217 +16,134 @@ import {
   PenetrationChartCard,
   ToolLibraryCard,
 } from './Panels';
+import './dashboard-animations.css';
+
+// ─── 高德地图配置 ────────────────────────────────────────
+const AMAP_KEY = '2db9d1f563beecc84b3ecc07aa472730';
+const AMAP_SECURITY_CODE = 'b34a44a884ff78a01cab45ee21480495';
+/** 杭州西湖坐标 */
+const HANGZHOU_CENTER: [number, number] = [120.153576, 30.287459];
+
+// AMap 全局类型声明
+declare global {
+  interface Window {
+    AMap?: any;
+    _AMapSecurityConfig?: { securityJsCode: string };
+  }
+}
 
 const Dashboard3D: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<{
-    scene: THREE.Scene;
-    camera: THREE.PerspectiveCamera;
-    renderer: THREE.WebGLRenderer;
-    labelRenderer: CSS2DRenderer;
-    controls: OrbitControls;
-    animId: number;
-  } | null>(null);
+  const sceneContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const mapInitRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
+  const theme = useAIStore((s) => s.settings.theme);
+  const isDark = theme === 'dark';
+  const t: DashboardTheme = getDashboardTheme(isDark);
+
+  // ── 加载高德地图脚本（仅一次） ──────────────────────────
   useEffect(() => {
-    if (!containerRef.current) return;
-    const container = containerRef.current;
+    window._AMapSecurityConfig = { securityJsCode: AMAP_SECURITY_CODE };
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf0f2f5);
-    scene.fog = new THREE.Fog(0xf0f2f5, 30, 90);
+    if (window.AMap) {
+      setScriptLoaded(true);
+      return;
+    }
 
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      200
-    );
-    camera.position.set(0, 18, 35);
-    camera.lookAt(0, 2, 0);
+    const existing = document.getElementById('amap-script');
+    if (existing) {
+      existing.addEventListener('load', () => setScriptLoaded(true));
+      return;
+    }
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-    container.appendChild(renderer.domElement);
+    const script = document.createElement('script');
+    script.id = 'amap-script';
+    script.src = `https://webapi.amap.com/maps?v=2.0&key=${AMAP_KEY}`;
+    script.onload = () => setScriptLoaded(true);
+    document.head.appendChild(script);
+  }, []);
 
-    const labelRenderer = new CSS2DRenderer();
-    labelRenderer.setSize(container.clientWidth, container.clientHeight);
-    labelRenderer.domElement.style.position = 'absolute';
-    labelRenderer.domElement.style.top = '0';
-    labelRenderer.domElement.style.left = '0';
-    labelRenderer.domElement.style.width = '100%';
-    labelRenderer.domElement.style.height = '100%';
-    labelRenderer.domElement.style.pointerEvents = 'none';
-    container.appendChild(labelRenderer.domElement);
+  // ── 初始化地图（脚本加载后仅创建一次） ────────────────────
+  useEffect(() => {
+    if (!scriptLoaded || !sceneContainerRef.current || !window.AMap || mapInitRef.current) return;
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minPolarAngle = Math.PI * 0.15;
-    controls.maxPolarAngle = Math.PI * 0.45;
-    controls.minDistance = 20;
-    controls.maxDistance = 60;
-    controls.target.set(0, 3, 0);
-    controls.enablePan = false;
+    mapInitRef.current = true;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
-    mainLight.position.set(15, 30, 20);
-    mainLight.castShadow = true;
-    mainLight.shadow.mapSize.width = 2048;
-    mainLight.shadow.mapSize.height = 2048;
-    mainLight.shadow.camera.near = 0.5;
-    mainLight.shadow.camera.far = 100;
-    mainLight.shadow.camera.left = -30;
-    mainLight.shadow.camera.right = 30;
-    mainLight.shadow.camera.top = 30;
-    mainLight.shadow.camera.bottom = -30;
-    mainLight.shadow.bias = -0.0005;
-    mainLight.shadow.radius = 4;
-    scene.add(mainLight);
-
-    const fillLight = new THREE.DirectionalLight(0xd6e4ff, 0.4);
-    fillLight.position.set(-15, 20, -10);
-    scene.add(fillLight);
-
-    const bottomLight = new THREE.HemisphereLight(0xffffff, 0xcccccc, 0.3);
-    scene.add(bottomLight);
-
-    const groundGeo = new THREE.PlaneGeometry(120, 120);
-    const groundMat = new THREE.MeshStandardMaterial({
-      color: 0xe8eaed,
-      roughness: 0.15,
-      metalness: 0.05,
-    });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.1;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    const gridHelper = new THREE.GridHelper(120, 60, 0xd0d4da, 0xe0e2e6);
-    gridHelper.position.y = 0.01;
-    scene.add(gridHelper);
-
-    const buildingMat = new THREE.MeshStandardMaterial({
-      color: 0xf5f7fa,
-      roughness: 0.85,
-      metalness: 0.02,
-      emissive: 0xffffff,
-      emissiveIntensity: 0.02,
+    const map = new window.AMap.Map(sceneContainerRef.current, {
+      zoom: 18,                        // ≥17 才会加载3D建筑模型，18效果更佳
+      center: HANGZHOU_CENTER,
+      viewMode: '3D',                 // 3D视图核心开关
+      pitch: 65,                      // 倾斜角度，越大越立体
+      rotation: -15,                  // 初始旋转角度
+      buildingAnimation: true,        // 建筑物"生长"动画
+      showBuildingBlock: true,        // 关键：显示3D建筑体块
+      mapStyle: isDark ? 'amap://styles/dark' : 'amap://styles/normal',
+      features: ['bg', 'road', 'building'],
+      resizeEnable: true,
     });
 
-    const mainBldg = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 6), buildingMat);
-    mainBldg.position.set(-12, 6, -15);
-    mainBldg.castShadow = true;
-    mainBldg.receiveShadow = true;
-    scene.add(mainBldg);
+    map.on('complete', () => setMapReady(true));
+    map.on('dragstart', () => setIsDragging(true));
+    map.on('dragend', () => setIsDragging(false));
 
-    const side1 = new THREE.Mesh(new THREE.BoxGeometry(5, 8, 5), buildingMat);
-    side1.position.set(-4, 4, -18);
-    side1.castShadow = true;
-    side1.receiveShadow = true;
-    scene.add(side1);
+    // 显式添加3D建筑图层，放大建筑高度增强立体感
+    const buildingsLayer = new window.AMap.Buildings({
+      zooms: [16, 20],
+      heightFactor: 2,                // 楼层高度放大因子，让建筑更高更醒目
+      visible: true,
+    });
+    map.add(buildingsLayer);
 
-    const side2 = new THREE.Mesh(new THREE.BoxGeometry(6, 10, 4), buildingMat);
-    side2.position.set(5, 5, -16);
-    side2.castShadow = true;
-    side2.receiveShadow = true;
-    scene.add(side2);
+    // 添加3D控制条插件（缩放/倾斜/旋转）
+    window.AMap.plugin(['AMap.ControlBar'], () => {
+      const controlBar = new window.AMap.ControlBar({
+        position: { right: '10px', top: '30px' },
+        showControlButton: false,
+      });
+      map.addControl(controlBar);
+    });
 
-    const far1 = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 5), buildingMat);
-    far1.position.set(18, 7, -25);
-    far1.castShadow = true;
-    scene.add(far1);
+    mapRef.current = map;
+  }, [scriptLoaded, isDark]);
 
-    const far2 = new THREE.Mesh(new THREE.BoxGeometry(7, 9, 4), buildingMat);
-    far2.position.set(-22, 4.5, -22);
-    far2.castShadow = true;
-    scene.add(far2);
+  // ── 主题切换时更新地图样式 ──────────────────────────────
+  useEffect(() => {
+    if (mapRef.current && mapInitRef.current) {
+      mapRef.current.setMapStyle(isDark ? 'amap://styles/dark' : 'amap://styles/normal');
+    }
+  }, [isDark]);
 
-    const tower = new THREE.Mesh(new THREE.BoxGeometry(3, 20, 3), buildingMat);
-    tower.position.set(22, 10, -12);
-    tower.castShadow = true;
-    scene.add(tower);
-
-    const bridge = new THREE.Mesh(
-      new THREE.BoxGeometry(6, 1, 2),
-      new THREE.MeshStandardMaterial({ color: 0xe0e3e8, roughness: 0.7 })
-    );
-    bridge.position.set(-8, 3, -15);
-    scene.add(bridge);
-
-    const cylinder = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.5, 2.5, 7, 16),
-      buildingMat
-    );
-    cylinder.position.set(14, 3.5, -8);
-    cylinder.castShadow = true;
-    scene.add(cylinder);
-
-    const clock = new THREE.Clock();
-
-    const animate = () => {
-      const animId = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-      labelRenderer.render(scene, camera);
-      if (sceneRef.current) sceneRef.current.animId = animId;
-    };
-
-    animate();
-
-    sceneRef.current = {
-      scene,
-      camera,
-      renderer,
-      labelRenderer,
-      controls,
-      animId: 0,
-    };
-
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-      labelRenderer.setSize(w, h);
-    };
-    window.addEventListener('resize', handleResize);
-
+  // ── 组件卸载时销毁地图 ──────────────────────────────────
+  useEffect(() => {
     return () => {
-      window.removeEventListener('resize', handleResize);
-      if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.animId);
-        sceneRef.current.controls.dispose();
-        sceneRef.current.renderer.dispose();
-        container.removeChild(sceneRef.current.renderer.domElement);
-        container.removeChild(sceneRef.current.labelRenderer.domElement);
+      if (mapRef.current) {
+        mapRef.current.destroy();
+        mapRef.current = null;
       }
     };
   }, []);
 
+  const bgGradient = isDark
+    ? 'linear-gradient(180deg, #1a1510 0%, #15120e 50%, #0f0a06 100%)'
+    : 'linear-gradient(180deg, #e8e2d8 0%, #e0d8cc 50%, #e8e2d8 100%)';
+
   return (
     <div
-      ref={containerRef}
       style={{
         width: '100%',
         height: '100%',
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(180deg, #eef1f5 0%, #f5f7fa 50%, #e8eaed 100%)',
+        background: bgGradient,
       }}
     >
-      {/* 面板层 */}
+      {isDark && <div className="dash-crt-overlay" />}
+      {isDark && <div className="dash-scanline-overlay" />}
+
+      {/* 卡片层 */}
       <div
         style={{
           position: 'absolute',
@@ -236,16 +153,15 @@ const Dashboard3D: React.FC = () => {
           height: '100%',
           pointerEvents: 'none',
           zIndex: 10,
-          padding: '8px 12px',
-          boxSizing: 'border-box',
         }}
       >
-        {/* 左上角：左侧3张卡片横向排列 */}
+        {/* 顶部：4张卡片横排 */}
         <div
           style={{
             position: 'absolute',
-            top: 12,
+            top: 36,
             left: 12,
+            right: 12,
             display: 'flex',
             flexDirection: 'row',
             gap: 10,
@@ -253,94 +169,140 @@ const Dashboard3D: React.FC = () => {
             alignItems: 'flex-start',
           }}
         >
-          <FloatCard delay={0.2}>
+          <FloatCard delay={0.15} isDark={isDark} t={t}>
             <ReportCountCard />
           </FloatCard>
-          <FloatCard delay={0.4}>
+          <FloatCard delay={0.25} isDark={isDark} t={t}>
             <AIPolicyCard />
           </FloatCard>
-          <FloatCard delay={0.6}>
+          <FloatCard delay={0.35} isDark={isDark} t={t}>
             <IndustryDataCard />
+          </FloatCard>
+          <FloatCard delay={0.45} isDark={isDark} t={t}>
+            <TimelineCard />
           </FloatCard>
         </div>
 
-        {/* 右侧：3张卡片纵向排列 */}
+        {/* 右下：2张卡片纵排 — 与上方 AI 行业大事件对齐 */}
         <div
           style={{
             position: 'absolute',
-            top: 12,
+            bottom: 8,
             right: 12,
+            width: 'calc((100% - 54px) / 4)',
+            top: '34%',
             display: 'flex',
             flexDirection: 'column',
             gap: 10,
             pointerEvents: 'auto',
           }}
         >
-          <FloatCard delay={0.3}>
-            <TimelineCard />
-          </FloatCard>
-          <FloatCard delay={0.5}>
+          <FloatCard delay={0.55} isDark={isDark} t={t} style={{ flex: 'none' }}>
             <PenetrationChartCard />
           </FloatCard>
-          <FloatCard delay={0.7}>
+          <FloatCard delay={0.65} isDark={isDark} t={t} style={{ flex: 'none' }}>
             <ToolLibraryCard />
           </FloatCard>
         </div>
       </div>
 
-      {/* 标题 */}
+      {/* 3D 地图面板 — 左下角，右边缘与 AI 行业大事件左边缘对齐 */}
       <div
+        ref={sceneContainerRef}
         style={{
           position: 'absolute',
-          top: 6,
+          bottom: 8,
           left: 12,
-          zIndex: 20,
-          pointerEvents: 'none',
+          right: 'calc(16px + (100% - 54px) / 4)',
+          top: '34%',
+          borderRadius: 16,
+          overflow: 'hidden',
+          border: `1px solid ${t.glassBorder}`,
+          boxShadow: t.glassShadow,
+          zIndex: 5,
+          background: isDark
+            ? 'rgba(15, 10, 6, 0.4)'
+            : 'rgba(255, 252, 248, 0.3)',
         }}
       >
-        <h1
+        {/* 面板标题 */}
+        <div
           style={{
-            margin: 0,
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#1a1a2e',
-            letterSpacing: 1,
+            position: 'absolute',
+            top: 8,
+            left: 12,
+            zIndex: 20,
+            pointerEvents: 'none',
           }}
         >
-          AI 行业资讯数据看板
-        </h1>
-        <p style={{ margin: '2px 0 0', fontSize: 10, color: '#5a6c7d' }}>
-          3D 沉浸式数字孪生
-        </p>
-      </div>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: t.textAccent,
+              letterSpacing: 0.5,
+              textShadow: isDark
+                ? '0 0 8px rgba(255, 184, 77, 0.3)'
+                : 'none',
+            }}
+          >
+            3D 城市数字孪生 · 杭州实景
+          </span>
+        </div>
 
-      {/* 操作提示 */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 6,
-          left: 12,
-          zIndex: 20,
-          background: 'rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(10px)',
-          padding: '4px 12px',
-          borderRadius: 12,
-          fontSize: 10,
-          color: '#5a6c7d',
-          pointerEvents: 'none',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-        }}
-      >
-        拖拽旋转视角 · 滚轮缩放
+        {/* 加载提示 */}
+        {!mapReady && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 15,
+              color: t.textSecondary,
+              fontSize: 12,
+              pointerEvents: 'none',
+            }}
+          >
+            正在加载3D实景建筑...
+          </div>
+        )}
+
+        {/* 拖拽提示 */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 8,
+            right: 12,
+            zIndex: 20,
+            background: t.glassBg,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            padding: '3px 10px',
+            borderRadius: 8,
+            fontSize: 9,
+            color: t.textSecondary,
+            pointerEvents: 'none',
+            border: `1px solid ${t.glassBorder}`,
+          }}
+        >
+          {isDragging
+            ? '拖拽中...'
+            : '左键拖拽 · 滚轮缩放 · 右键旋转'}
+        </div>
       </div>
     </div>
   );
 };
 
-const FloatCard: React.FC<{ children: React.ReactNode; delay: number }> = ({
-  children,
-  delay,
-}) => {
+// ─── 悬浮卡片包装器 ─────────────────────────────────────
+const FloatCard: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+  isDark: boolean;
+  t: DashboardTheme;
+  style?: React.CSSProperties;
+}> = ({ children, delay, isDark, t, style }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -361,24 +323,27 @@ const FloatCard: React.FC<{ children: React.ReactNode; delay: number }> = ({
     <div
       ref={ref}
       style={{
+        flex: 1,
+        minWidth: 0,
+        ...style,
         transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.02)';
         const card = e.currentTarget.firstChild as HTMLElement;
         if (card) {
-          card.style.boxShadow = '0 8px 24px rgba(31, 110, 185, 0.12), 0 0 0 1px rgba(22,119,255,0.12)';
+          card.style.boxShadow = t.glassHoverShadow;
         }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'scale(1)';
         const card = e.currentTarget.firstChild as HTMLElement;
         if (card) {
-          card.style.boxShadow = '0 4px 16px rgba(31, 110, 185, 0.06), inset 0 1px 0 rgba(255,255,255,0.6)';
+          card.style.boxShadow = t.glassShadow;
         }
       }}
     >
-      {children}
+      {isDark ? <div style={{ filter: 'drop-shadow(0 0 4px rgba(255, 184, 77, 0.08))' }}>{children}</div> : children}
     </div>
   );
 };
